@@ -45,15 +45,15 @@ public class MainTaskExecutor implements Job {
 
     @Override
     public void execute(JobExecutionContext context) {
-//        if (isFirstRunning) {
-//            initLocations();
-//            initCitiesInOperation();
-//            initCurrencies();
-//            initRoutes();
-//            isFirstRunning = false;
-//        }
-//        checkNecessityToUpdatePrices();
-//        executeTasksFromMainQueue();
+        if (isFirstRunning) {
+            initLocations();
+            initCitiesInOperation();
+            initCurrencies();
+            initRoutes();
+            isFirstRunning = false;
+        }
+        checkNecessityToUpdatePrices();
+        executeTasksFromMainQueue();
     }
 
     private void initLocations() {

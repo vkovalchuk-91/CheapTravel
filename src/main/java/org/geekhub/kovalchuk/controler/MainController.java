@@ -45,7 +45,7 @@ public class MainController {
     }
 
     @GetMapping("/flight")
-    public String showPage(Authentication auth, Model model) {
+    public String showFlightsPage(Authentication auth, Model model) {
         model.addAttribute("cashedLocationsInOperation", cityInOperationService.getLocationsForView());
         model.addAttribute("role", getRole(auth));
         return "flight";
@@ -66,7 +66,7 @@ public class MainController {
 
     @GetMapping("/user-info")
     @ResponseBody
-    public String userInfo(@AuthenticationPrincipal UserDetails userDetails) {
+    public String getUserInfo(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
            return Strings.EMPTY;
         } else {
@@ -75,12 +75,12 @@ public class MainController {
     }
 
     @GetMapping("/registration")
-    public String registration() {
+    public String showRegistrationPage() {
         return "registration";
     }
 
     @PostMapping("/registration")
-    public String addUser(User user, Map<String, Object> model) {
+    public String registerUser(User user, Map<String, Object> model) {
         User userFromDb = userService.findByUsername(user.getUsername());
         if (userFromDb != null) {
             model.put("message", "true");

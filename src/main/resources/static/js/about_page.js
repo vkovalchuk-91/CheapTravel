@@ -52,6 +52,7 @@ function getUserInfo() {
     }
 }
 
+// display information block
 $(function () {
     const $about_program = $('#about_program');
     const $about_author = $('#about_author');

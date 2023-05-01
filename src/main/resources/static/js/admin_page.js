@@ -52,27 +52,38 @@ function getUserInfo() {
     }
 }
 
+// display information block
 $(function () {
-    const $about_program = $('#about_program');
-    const $about_author = $('#about_author');
     let information_block = document.getElementById("information_block");
 
-    // $(document).ready(function () {
-    //     displayBlockAboutProgram(information_block);
-    // })
-
-    $($about_program).on('click', function () {
-        displayBlockAboutProgram(information_block);
+    $(document).ready(function () {
+        displayBlockChangeCitiesInOperation(information_block);
     })
 
-    $($about_author).on('click', function () {
-        displayBlockAboutAuthor(information_block);
+    $('#change_cities_in_operation').on('click', function () {
+        displayBlockChangeCitiesInOperation(information_block);
+    })
+
+    $('#change_cashing_months').on('click', function () {
+        displayBlockChangeCashingMonths(information_block);
+    })
+
+    $('#update_locations').on('click', function () {
+        displayBlockUpdateLocations(information_block);
+    })
+
+    $('#update_routes').on('click', function () {
+        displayBlockUpdateRoutes(information_block);
+    })
+
+    $('#edit_users').on('click', function () {
+        displayBlockEditUsers(information_block);
     })
 })
 
-function displayBlockAboutProgram(information_block) {
+function displayBlockChangeCitiesInOperation(information_block) {
     information_block.innerHTML = `
-            <h1 class="d-flex justify-content-center mt-4">Інформація про деталі роботи програми</h1>
+            <h1 class="d-flex justify-content-center mt-4">Зміна переліку міст, по яким здійснюється пошук</h1>
             <div id="main_content">
                 <p>
                     * В подальшому буде заповнено інформацією про деталі роботи програми!
@@ -81,7 +92,43 @@ function displayBlockAboutProgram(information_block) {
         `;
 }
 
-function displayBlockAboutAuthor(information_block) {
+function displayBlockChangeCashingMonths(information_block) {
+    information_block.innerHTML = `
+            <h1 class="d-flex justify-content-center mt-4">Інформація про автора програми</h1>
+            <div id="main_content">
+                <p>Ковальчук Володимир</p>
+                <p>
+                    GeekHub 2023
+                </p>
+            </div>
+        `;
+}
+
+function displayBlockUpdateLocations(information_block) {
+    information_block.innerHTML = `
+            <h1 class="d-flex justify-content-center mt-4">Інформація про автора програми</h1>
+            <div id="main_content">
+                <p>Ковальчук Володимир</p>
+                <p>
+                    GeekHub 2023
+                </p>
+            </div>
+        `;
+}
+
+function displayBlockUpdateRoutes(information_block) {
+    information_block.innerHTML = `
+            <h1 class="d-flex justify-content-center mt-4">Інформація про автора програми</h1>
+            <div id="main_content">
+                <p>Ковальчук Володимир</p>
+                <p>
+                    GeekHub 2023
+                </p>
+            </div>
+        `;
+}
+
+function displayBlockEditUsers(information_block) {
     information_block.innerHTML = `
             <h1 class="d-flex justify-content-center mt-4">Інформація про автора програми</h1>
             <div id="main_content">

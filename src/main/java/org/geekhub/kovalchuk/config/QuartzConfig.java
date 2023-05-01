@@ -41,8 +41,6 @@ public class QuartzConfig {
     @Bean
     public Properties quartzProperties() {
         Properties properties = new Properties();
-        properties.setProperty("org.quartz.scheduler.instanceName", "MyScheduler");
-        properties.setProperty("org.quartz.scheduler.instanceId", "AUTO");
         properties.setProperty("org.quartz.threadPool.threadCount", "5");
         return properties;
     }

@@ -18,11 +18,20 @@
     <div class="border-end bg-white" id="sidebar-wrapper">
         <div class="sidebar-heading border-bottom bg-light">Cheap Euro Trip</div>
         <div class="list-group list-group-flush">
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="about_program">
-                Інформація про програму
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="change_cities_in_operation">
+                Змінити перелік міст, по яким здійснюється пошук
             </a>
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="about_author">
-                Інформація про автора
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="change_cashing_months">
+                Змінити кількість місяців, на які кешуються ціни
+            </a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="update_locations">
+                Оновити перелік локацій SkyScanner API
+            </a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="update_routes">
+                Оновити доступність маршрутів
+            </a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="edit_users">
+                Редагувати статус користувачів та їх ролі
             </a>
         </div>
     </div>
@@ -62,31 +71,14 @@
         </nav>
         <!-- Page content-->
         <div class="container-fluid" id="information_block">
-            <h1 class="d-flex justify-content-center mt-4">Cheap Euro Trip - програма пошуку дешевих авіаквитків</h1>
-            <div id="main_content">
-                <p>
-                    В основі програми лежить <a href="https://developers.skyscanner.net/docs/intro">SkyScanner API</a>!
-                    Програма здійснює обробку та накопичення даних щодо напрямків, дат та цін на авіаперельоти та за
-                    допомогою гнучких фільтрів дає можливість знайти найдешевші варіанти подорожі, що підходять саме
-                    вам!
-                </p>
 
-                <#if role=="NotAuthenticated">
-                    <p style="color: red">Для використання програми потрібно спочатку <a href="/registration">зареєструватися</a>
-                        або <a href="/login">увійти</a> на сайт!
-                    </p>
-                <#else>
-                    <p><a href="/flight">Натисніть</a> щоб розпочати використання програми!
-                    </p>
-                </#if>
-            </div>
         </div>
     </div>
 </div>
 <!-- JS -->
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/jquery-3.6.4.min.js"></script>
-<script src="js/about_page.js"></script>
+<script src="js/admin_page.js"></script>
 
 </body>
 </html>

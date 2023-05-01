@@ -297,7 +297,7 @@ function displayResults(data) {
 
 // add pagination buttons
 function addPaginationButtons() {
-    var myDiv = document.getElementById("main_content");
+    let main_content = document.getElementById("main_content");
     let html = `
             <div class="d-flex justify-content-center mb-4">
             <div class="btn-group">
@@ -310,7 +310,7 @@ function addPaginationButtons() {
             </div>
             </div>
                 `;
-    myDiv.innerHTML += html;
+    main_content.innerHTML += html;
 }
 
 // configure pagination for search results
@@ -368,4 +368,39 @@ function setPagination() {
         showItems();
         updateInterface();
     });
+}
+
+// display information in log-in block
+$(document).ready(function() {
+    let navbar_dropdown = document.getElementById("navbar_dropdown");
+    let navbar_first = document.getElementById("navbar_first");
+    let navbar_second = document.getElementById("navbar_second");
+    let username = getUserInfo();
+    if (username === '') {
+        navbar_dropdown.innerHTML = "Зареєструватися";
+        navbar_first.innerHTML = `
+                    <a class="dropdown-item" href="/login">Увійти</a>
+        `;
+        navbar_second.innerHTML = `
+                    <a class="dropdown-item" href="/registration">Зареєструватися</a>
+        `;
+    } else {
+        navbar_dropdown.innerHTML = username;
+        navbar_first.innerHTML = `
+                    Користувач-${username}
+        `;
+        navbar_second.innerHTML = `
+                    <a class="dropdown-item" href="/logout">Вийти</a>
+        `;
+    }
+});
+
+// get current user username
+function getUserInfo() {
+    let xhr = new XMLHttpRequest();
+    xhr.open('GET', '/user-info', false);
+    xhr.send();
+    if (xhr.status === 200) {
+        return xhr.responseText;
+    }
 }

@@ -1,6 +1,6 @@
 package org.geekhub.kovalchuk.service;
 
-import org.geekhub.kovalchuk.config.PropertiesConfig;
+import org.geekhub.kovalchuk.config.ApplicationPropertiesConfig;
 import org.geekhub.kovalchuk.json.JsonParser;
 import org.geekhub.kovalchuk.json.JsonRequestMaker;
 import org.geekhub.kovalchuk.json.entity.MonthPriceJsonEntity.Content.Results.Quote;
@@ -21,12 +21,12 @@ public class MonthPricesService {
     FlightRepository flightRepository;
     RouteRepository routeRepository;
     TaskQueueRepository taskQueueRepository;
-    PropertiesConfig properties;
+    ApplicationPropertiesConfig properties;
 
     public MonthPricesService(FlightRepository flightRepository,
                               RouteRepository routeRepository,
                               TaskQueueRepository taskQueueRepository,
-                              PropertiesConfig properties) {
+                              ApplicationPropertiesConfig properties) {
         this.flightRepository = flightRepository;
         this.routeRepository = routeRepository;
         this.taskQueueRepository = taskQueueRepository;

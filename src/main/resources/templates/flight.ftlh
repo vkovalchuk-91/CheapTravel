@@ -19,7 +19,7 @@
 <div class="d-flex" id="wrapper">
     <!-- Sidebar-->
     <div class="border-end bg-white" id="sidebar-wrapper">
-        <div class="sidebar-heading border-bottom bg-light">Cheap Euro trip</div>
+        <div class="sidebar-heading border-bottom bg-light">Cheap Euro Trip</div>
         <div class="list-group list-group-flush">
 
 
@@ -381,16 +381,20 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
-                        <li class="nav-item active"><a class="nav-link" href="#!">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#!">Link</a></li>
+                        <#if role=="ADMIN">
+                            <li class="nav-item active"><a class="nav-link" href="/admin">Панель адміністратора</a></li>
+                        </#if>
+                        <#if role!="NotAuthenticated">
+                        <li class="nav-item active"><a class="nav-link" href="/flight">Пошук авіаквитків</a></li>
+                        </#if>
+                        <li class="nav-item"><a class="nav-link" href="/">Про проект</a></li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button"
-                               data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                            <a class="nav-link dropdown-toggle" id="navbar_dropdown" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"></a>
                             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="#!">Action</a>
-                                <a class="dropdown-item" href="#!">Another action</a>
+                                <div id="navbar_first" style="text-align: center;"></div>
                                 <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#!">Something else here</a>
+                                <div id="navbar_second" style="text-align: center;"></div>
                             </div>
                         </li>
                     </ul>
@@ -402,15 +406,6 @@
             <h1 class="d-flex justify-content-center mt-4">Результати пошуку</h1>
             <div id="main_content">
             </div>
-            <#--            <p>The starting state of the menu will appear collapsed on smaller screens, and will appear non-collapsed on-->
-            <#--                larger screens. When toggled using the button below, the menu will change.</p>-->
-            <#--            <p>-->
-            <#--                Make sure to keep all page content within the-->
-            <#--                <code>#page-content-wrapper</code>-->
-            <#--                . The top navbar is optional, and just for demonstration. Just create an element with the-->
-            <#--                <code>#sidebarToggle</code>-->
-            <#--                ID which will toggle the menu when clicked.-->
-            <#--            </p>-->
         </div>
     </div>
 </div>
@@ -421,7 +416,7 @@
 <script src="js/rSlider.min.js"></script>
 <script src="js/moment.min.js"></script>
 <script src="js/daterangepicker.min.js"></script>
-<script src="js/javaScript.js"></script>
+<script src="js/flight_page.js"></script>
 
 </body>
 </html>

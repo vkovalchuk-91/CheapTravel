@@ -1,6 +1,7 @@
-package org.geekhub.kovalchuk.scheduler;
+package org.geekhub.kovalchuk.config;
 
-import org.geekhub.kovalchuk.config.PropertiesConfig;
+import org.geekhub.kovalchuk.config.ApplicationPropertiesConfig;
+import org.geekhub.kovalchuk.scheduler.MainTaskExecutor;
 import org.quartz.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -13,9 +14,9 @@ import java.util.Properties;
 @Configuration
 public class QuartzConfig {
     ApplicationContext applicationContext;
-    PropertiesConfig properties;
+    ApplicationPropertiesConfig properties;
 
-    public QuartzConfig(ApplicationContext applicationContext, PropertiesConfig properties) {
+    public QuartzConfig(ApplicationContext applicationContext, ApplicationPropertiesConfig properties) {
         this.applicationContext = applicationContext;
         this.properties = properties;
     }

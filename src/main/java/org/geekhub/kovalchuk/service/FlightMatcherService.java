@@ -1,6 +1,6 @@
 package org.geekhub.kovalchuk.service;
 
-import org.geekhub.kovalchuk.config.PropertiesConfig;
+import org.geekhub.kovalchuk.config.ApplicationPropertiesConfig;
 import org.geekhub.kovalchuk.model.*;
 import org.geekhub.kovalchuk.model.entity.*;
 import org.geekhub.kovalchuk.model.request.SearchParamsRequest;
@@ -25,7 +25,7 @@ public class FlightMatcherService {
     RouteRepository routeRepository;
     LocationRepository locationRepository;
     CurrencyService currencyService;
-    PropertiesConfig properties;
+    ApplicationPropertiesConfig properties;
     public static final String TYPE_CITY = "PLACE_TYPE_CITY";
 
     public FlightMatcherService(FlightRepository flightRepository,
@@ -33,7 +33,7 @@ public class FlightMatcherService {
                                 RouteRepository routeRepository,
                                 LocationRepository locationRepository,
                                 CurrencyService currencyService,
-                                PropertiesConfig properties) {
+                                ApplicationPropertiesConfig properties) {
         this.flightRepository = flightRepository;
         this.cityRepository = cityRepository;
         this.routeRepository = routeRepository;

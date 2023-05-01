@@ -1,9 +1,7 @@
 package org.geekhub.kovalchuk.scheduler;
 
-import org.geekhub.kovalchuk.config.PropertiesConfig;
-import org.geekhub.kovalchuk.model.*;
+import org.geekhub.kovalchuk.config.ApplicationPropertiesConfig;
 import org.geekhub.kovalchuk.model.entity.Currency;
-import org.geekhub.kovalchuk.model.entity.Location;
 import org.geekhub.kovalchuk.repository.TaskQueueRepository;
 import org.geekhub.kovalchuk.service.*;
 import org.quartz.DisallowConcurrentExecution;
@@ -12,7 +10,6 @@ import org.quartz.JobExecutionContext;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Queue;
 
 @DisallowConcurrentExecution
@@ -25,7 +22,7 @@ public class MainTaskExecutor implements Job {
     TaskQueueRepository taskQueueRepository;
     MonthPricesService monthPricesService;
     FlightMatcherService flightMatcherService;
-    PropertiesConfig properties;
+    ApplicationPropertiesConfig properties;
     boolean isFirstRunning = true;
 
     public MainTaskExecutor(LocationsService locationsService,
@@ -35,7 +32,7 @@ public class MainTaskExecutor implements Job {
                             TaskQueueRepository taskQueueRepository,
                             MonthPricesService monthPricesService,
                             FlightMatcherService flightMatcherService,
-                            PropertiesConfig properties) {
+                            ApplicationPropertiesConfig properties) {
         this.locationsService = locationsService;
         this.cityInOperationService = cityInOperationService;
         this.currencyService = currencyService;

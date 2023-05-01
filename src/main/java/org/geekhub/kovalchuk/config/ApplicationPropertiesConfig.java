@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class PropertiesConfig {
+public class ApplicationPropertiesConfig {
     @Value("${flight.properties.search.max_months}")
     private int maxMonths;
     @Value("${flight.properties.default.list.top.cities_in_operation_id}")

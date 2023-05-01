@@ -1,6 +1,6 @@
 package org.geekhub.kovalchuk.service;
 
-import org.geekhub.kovalchuk.config.PropertiesConfig;
+import org.geekhub.kovalchuk.config.ApplicationPropertiesConfig;
 import org.geekhub.kovalchuk.model.entity.CityInOperation;
 import org.geekhub.kovalchuk.model.entity.Location;
 import org.geekhub.kovalchuk.model.dto.LocationInOperationDto;
@@ -19,13 +19,13 @@ public class CityInOperationService {
     CityInOperationRepository cityInOperationRepository;
     LocationRepository locationRepository;
     LocationTypeRepository locationTypeRepository;
-    PropertiesConfig properties;
+    ApplicationPropertiesConfig properties;
     private List<LocationInOperationDto> cashedLocationsInOperation = new ArrayList<>();
 
     public CityInOperationService(CityInOperationRepository cityInOperationRepository,
                                   LocationRepository locationRepository,
                                   LocationTypeRepository locationTypeRepository,
-                                  PropertiesConfig properties) {
+                                  ApplicationPropertiesConfig properties) {
         this.cityInOperationRepository = cityInOperationRepository;
         this.locationRepository = locationRepository;
         this.locationTypeRepository = locationTypeRepository;

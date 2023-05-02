@@ -1,6 +1,5 @@
 package org.geekhub.kovalchuk.config;
 
-import org.geekhub.kovalchuk.config.ApplicationPropertiesConfig;
 import org.geekhub.kovalchuk.scheduler.MainTaskExecutor;
 import org.quartz.*;
 import org.springframework.context.ApplicationContext;
@@ -41,7 +40,7 @@ public class QuartzConfig {
     @Bean
     public Properties quartzProperties() {
         Properties properties = new Properties();
-        properties.setProperty("org.quartz.threadPool.threadCount", "5");
+        properties.setProperty("org.quartz.threadPool.threadCount", "4");
         return properties;
     }
 

@@ -1,7 +1,7 @@
 package org.geekhub.kovalchuk.service;
 
 import org.geekhub.kovalchuk.model.entity.Currency;
-import org.geekhub.kovalchuk.repository.CurrencyRepository;
+import org.geekhub.kovalchuk.repository.jpa.CurrencyRepository;
 import org.springframework.stereotype.Service;
 
 @Service

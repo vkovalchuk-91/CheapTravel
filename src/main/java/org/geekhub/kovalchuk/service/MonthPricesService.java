@@ -3,11 +3,13 @@ package org.geekhub.kovalchuk.service;
 import org.geekhub.kovalchuk.config.ApplicationPropertiesConfig;
 import org.geekhub.kovalchuk.json.JsonParser;
 import org.geekhub.kovalchuk.json.JsonRequestMaker;
-import org.geekhub.kovalchuk.json.entity.MonthPriceJsonEntity.Content.Results.Quote;
+import org.geekhub.kovalchuk.json.entity.MonthPriceJsonResponse.Content.Results.Quote;
 import org.geekhub.kovalchuk.model.entity.Currency;
 import org.geekhub.kovalchuk.model.entity.Flight;
 import org.geekhub.kovalchuk.model.entity.Route;
 import org.geekhub.kovalchuk.repository.*;
+import org.geekhub.kovalchuk.repository.jpa.FlightRepository;
+import org.geekhub.kovalchuk.repository.jpa.RouteRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

@@ -112,5 +112,6 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/mdb5/core.min.js"></script>
 <script src="js/registration_page.js"></script>
+<script src="js/bootstrap_validation.js"></script>
 </body>
 </html>

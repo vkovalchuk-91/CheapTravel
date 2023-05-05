@@ -2,12 +2,16 @@ package org.geekhub.kovalchuk.service;
 
 import org.geekhub.kovalchuk.json.JsonParser;
 import org.geekhub.kovalchuk.json.JsonRequestMaker;
-import org.geekhub.kovalchuk.json.entity.MonthPriceJsonEntity;
+import org.geekhub.kovalchuk.json.entity.MonthPriceJsonResponse;
 import org.geekhub.kovalchuk.model.entity.CityInOperation;
 import org.geekhub.kovalchuk.model.entity.Location;
 import org.geekhub.kovalchuk.model.entity.LocationType;
 import org.geekhub.kovalchuk.model.entity.Route;
 import org.geekhub.kovalchuk.repository.*;
+import org.geekhub.kovalchuk.repository.jpa.CityInOperationRepository;
+import org.geekhub.kovalchuk.repository.jpa.LocationRepository;
+import org.geekhub.kovalchuk.repository.jpa.LocationTypeRepository;
+import org.geekhub.kovalchuk.repository.jpa.RouteRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -106,7 +110,7 @@ public class RouteService {
 
         long numberOfDirectFlights = JsonParser.getMonthPrices(monthPricesJson)
                 .getContent().getResults().getQuotes().values().stream()
-                .map(MonthPriceJsonEntity.Content.Results.Quote::getIsDirect)
+                .map(MonthPriceJsonResponse.Content.Results.Quote::getIsDirect)
                 .filter(Boolean::booleanValue)
                 .count();
 

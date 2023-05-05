@@ -1,7 +1,7 @@
 package org.geekhub.kovalchuk.service;
 
 import org.geekhub.kovalchuk.model.entity.Role;
-import org.geekhub.kovalchuk.repository.RoleRepository;
+import org.geekhub.kovalchuk.repository.jpa.RoleRepository;
 import org.springframework.stereotype.Service;
 
 @Service

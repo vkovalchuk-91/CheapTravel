@@ -87,7 +87,20 @@ public class MainTaskExecutor implements Job {
     private void checkNecessityToUpdatePrices() {
         Queue<Runnable> taskQueue = taskQueueRepository.getTaskQueue();
         int taskQueueSize = taskQueue.size();
-        if (taskQueueSize < properties.getRequestsPerMinute()) {
+
+        if (taskQueueRepository.isNeedToStartUpdateRoutes() || taskQueueRepository.isNeedToFinishRoutesUpdating()) {
+            if (taskQueueRepository.isNeedToStartUpdateRoutes()) {
+                taskQueueRepository.getTaskQueue().clear();
+                routeService.runRoutesUpdater();
+                taskQueueRepository.setNeedToFinishRoutesUpdating(true);
+                taskQueueRepository.setNeedToStartUpdateRoutes(false);
+            }
+            if (taskQueueSize == 0) {
+                taskQueueRepository.setNeedToFinishRoutesUpdating(false);
+            }
+        }
+
+        if (taskQueueSize < properties.getRequestsPerMinute() && !taskQueueRepository.isNeedToFinishRoutesUpdating()) {
             Currency currency = currencyService.getCurrencyByCode("USD");
             monthPricesService.runFlightPricesUpdater(currency);
             System.out.printf("Flight prices updater is running, added %d new tasks!\n",

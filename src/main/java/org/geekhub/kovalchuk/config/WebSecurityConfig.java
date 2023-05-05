@@ -7,6 +7,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
 import javax.sql.DataSource;
 
@@ -30,17 +31,19 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/admin").hasAnyRole("ADMIN")
-                .antMatchers("/flight").hasAnyRole("USER", "ADMIN")
-                .antMatchers("/**").permitAll()
-                .anyRequest().authenticated()
-                .and()
+                    .antMatchers("/admin").hasAnyRole("ADMIN")
+                    .antMatchers("/flight").hasAnyRole("USER", "ADMIN")
+                    .antMatchers("/**").permitAll()
+                    .anyRequest().authenticated()
+                    .and()
                 .formLogin()
-                .loginPage("/login").permitAll()
-                .and()
+                    .successHandler(new SimpleUrlAuthenticationSuccessHandler("/flight"))
+                    .loginPage("/login").permitAll()
+                    .and()
                 .logout()
-                .logoutUrl("/logout")
-                .and()
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/login")
+                    .and()
                 .logout().permitAll();
     }
 

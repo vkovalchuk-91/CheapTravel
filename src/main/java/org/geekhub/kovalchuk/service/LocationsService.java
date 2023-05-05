@@ -1,12 +1,12 @@
 package org.geekhub.kovalchuk.service;
 
-import org.geekhub.kovalchuk.json.entity.LocationJsonEntity.Place;
+import org.geekhub.kovalchuk.json.entity.LocationJsonResponse.Place;
 import org.geekhub.kovalchuk.model.entity.Location;
 import org.geekhub.kovalchuk.model.entity.LocationType;
 import org.geekhub.kovalchuk.json.JsonParser;
 import org.geekhub.kovalchuk.json.JsonRequestMaker;
-import org.geekhub.kovalchuk.repository.LocationRepository;
-import org.geekhub.kovalchuk.repository.LocationTypeRepository;
+import org.geekhub.kovalchuk.repository.jpa.LocationRepository;
+import org.geekhub.kovalchuk.repository.jpa.LocationTypeRepository;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

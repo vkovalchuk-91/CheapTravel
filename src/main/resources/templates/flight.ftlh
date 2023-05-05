@@ -417,6 +417,8 @@
 <script src="js/moment.min.js"></script>
 <script src="js/daterangepicker.min.js"></script>
 <script src="js/flight_page.js"></script>
-
+<script src="js/hide_show_sidebar.js"></script>
+<script src="js/display_login_block.js"></script>
+<script src="js/bootstrap_validation.js"></script>
 </body>
 </html>

@@ -1,5 +1,8 @@
 package org.geekhub.kovalchuk.json;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.geekhub.kovalchuk.json.entity.MonthPriceJsonRequest;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
@@ -49,13 +52,12 @@ public class JsonRequestMaker {
 
         httpConn.setDoOutput(true);
         OutputStreamWriter writer = new OutputStreamWriter(httpConn.getOutputStream());
-        writer.write(String.format("{ \"query\": { \"market\": \"UA\",\"locale\": \"uk-UA\"," +
-                        "\"currency\": \"%s\",\"dateTimeGroupingType\": \"DATE_TIME_GROUPING_TYPE_BY_DATE\"," +
-                        "\"queryLegs\": [{ \"originPlace\": { \"queryPlace\": { \"entityId\":\"%s\" } }, " +
-                        "\"destinationPlace\": { \"queryPlace\": { \"entityId\":\"%s\" } }, " +
-                        "\"date_range\": { \"startDate\": {\"year\": %d,\"month\": %d}," +
-                        "\"endDate\": {\"year\": %d,\"month\": %d}} }] } }",
-                currency, originPlaceId, destinationPlaceId, year, month, year, month));
+
+        MonthPriceJsonRequest monthPriceJsonRequest = new MonthPriceJsonRequest(
+                currency, originPlaceId, destinationPlaceId, year, month);
+        String jsonRequest = new ObjectMapper().writeValueAsString(monthPriceJsonRequest);
+
+        writer.write(jsonRequest);
         writer.flush();
         writer.close();
         httpConn.getOutputStream().close();

@@ -10,6 +10,7 @@
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico"/>
     <!-- CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/dselect.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
 </head>
 <body>
@@ -23,6 +24,9 @@
             </a>
             <a class="list-group-item list-group-item-action list-group-item-light p-3" id="about_author">
                 Інформація про автора
+            </a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="reports">
+                Статистичні звіти
             </a>
         </div>
     </div>
@@ -81,12 +85,69 @@
                 </#if>
             </div>
         </div>
+
+        <div class="container-fluid" id="reports_block" style="display: none">
+            <h1 class="mt-4">
+                Статистика кількості та вартості рейсів з/до міст, які доступні в програмі
+            </h1>
+            <div id="main_content" class="mb-4">
+                <p>
+                    Інформація, щодо кількості міст з якими існує авіасполучення з кожного міста, що доступне для пошуку в додатку та середньою вартістю квитків з/до цього міста.
+                </p>
+                <button class="btn btn btn-outline-primary" onclick="window.location.href='/report1'">
+                    Завантажити звіт
+                </button>
+            </div>
+
+            <hr>
+
+            <h1 class="mt-4">
+                Статистика вартості польотів з обраного міста
+            </h1>
+            <div id="main_content" class="mb-4">
+                <p>
+                    Мінімальна, середня та найбільша вартість авіарейсів з обраного міста. Перед завантаженням потрібно обрати місто, по якому ви хочете отримати звіт.
+                </p>
+
+                <div class="row ms-1 col-2 mb-4">
+                    <select class="form-select dselect" required id="report_city" name="from">
+                        <#list cashedCitiesInOperation as city>
+                            <option value="${city.getId()}">
+                                ${city.getName()}
+                            </option>
+                        </#list>
+                    </select>
+                </div>
+
+                <button id="report_2_download_button" class="btn btn btn-outline-primary">
+                    Завантажити звіт
+                </button>
+            </div>
+
+            <hr>
+
+            <h1 class="mt-4">
+                Топ-10 маршрутів з найнижчими цінами
+            </h1>
+            <div id="main_content">
+                <p>
+                    Топ-10 маршрутів за якими ціни на авіаперельоти є найнижчими.
+                </p>
+                <button class="btn btn btn-outline-primary" onclick="window.location.href='/report3'">
+                    Завантажити звіт
+                </button>
+            </div>
+
+        </div>
+
     </div>
 </div>
 <!-- JS -->
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/jquery-3.6.4.min.js"></script>
+<script src="js/dselect.js"></script>
 <script src="js/about_page.js"></script>
-
+<script src="js/hide_show_sidebar.js"></script>
+<script src="js/display_login_block.js"></script>
 </body>
 </html>

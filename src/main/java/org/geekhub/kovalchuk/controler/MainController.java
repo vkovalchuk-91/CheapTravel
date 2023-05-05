@@ -2,12 +2,10 @@ package org.geekhub.kovalchuk.controler;
 
 import org.apache.logging.log4j.util.Strings;
 import org.geekhub.kovalchuk.model.ManyFlightsUnit;
-import org.geekhub.kovalchuk.model.entity.Role;
 import org.geekhub.kovalchuk.model.entity.User;
 import org.geekhub.kovalchuk.model.request.SearchParamsRequest;
 import org.geekhub.kovalchuk.service.CityInOperationService;
 import org.geekhub.kovalchuk.service.FlightMatcherService;
-import org.geekhub.kovalchuk.service.RoleService;
 import org.geekhub.kovalchuk.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,8 +15,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Controller
 public class MainController {
@@ -26,20 +22,19 @@ public class MainController {
     CityInOperationService cityInOperationService;
     FlightMatcherService flightMatcherService;
     UserService userService;
-    RoleService roleService;
+
 
     public MainController(CityInOperationService cityInOperationService,
                           FlightMatcherService flightMatcherService,
-                          UserService userService,
-                          RoleService roleService) {
+                          UserService userService) {
         this.cityInOperationService = cityInOperationService;
         this.flightMatcherService = flightMatcherService;
         this.userService = userService;
-        this.roleService = roleService;
     }
 
     @GetMapping("/")
     public String showIndexPage(Authentication auth, Model model) {
+        model.addAttribute("cashedCitiesInOperation", cityInOperationService.getCitiesForView());
         model.addAttribute("role", getRole(auth));
         return "about";
     }
@@ -80,18 +75,13 @@ public class MainController {
     }
 
     @PostMapping("/registration")
-    public String registerUser(User user, Map<String, Object> model) {
+    public String registerUser(User user) {
         User userFromDb = userService.findByUsername(user.getUsername());
         if (userFromDb != null) {
-            model.put("message", "true");
             return "registration";
         }
 
-        user.setActive(true);
-        Role roleUser = roleService.findByRole("ROLE_USER");
-        user.setRoles(Set.of(roleUser));
-        userService.save(user);
-
+        userService.addNewUser(user);
         return "redirect:/login";
     }
 

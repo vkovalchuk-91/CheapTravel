@@ -4,10 +4,10 @@ import org.geekhub.kovalchuk.config.ApplicationPropertiesConfig;
 import org.geekhub.kovalchuk.model.*;
 import org.geekhub.kovalchuk.model.entity.*;
 import org.geekhub.kovalchuk.model.request.SearchParamsRequest;
-import org.geekhub.kovalchuk.repository.CityInOperationRepository;
-import org.geekhub.kovalchuk.repository.FlightRepository;
-import org.geekhub.kovalchuk.repository.LocationRepository;
-import org.geekhub.kovalchuk.repository.RouteRepository;
+import org.geekhub.kovalchuk.repository.jpa.CityInOperationRepository;
+import org.geekhub.kovalchuk.repository.jpa.FlightRepository;
+import org.geekhub.kovalchuk.repository.jpa.LocationRepository;
+import org.geekhub.kovalchuk.repository.jpa.RouteRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;

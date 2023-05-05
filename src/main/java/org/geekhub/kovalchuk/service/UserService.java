@@ -1,17 +1,25 @@
 package org.geekhub.kovalchuk.service;
 
+import org.apache.logging.log4j.util.Strings;
+import org.geekhub.kovalchuk.model.dto.UserDto;
+import org.geekhub.kovalchuk.model.entity.Role;
 import org.geekhub.kovalchuk.model.entity.User;
-import org.geekhub.kovalchuk.repository.UserRepository;
+import org.geekhub.kovalchuk.repository.jpa.RoleRepository;
+import org.geekhub.kovalchuk.repository.jpa.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+
 @Service
 public class UserService {
-
     UserRepository userRepository;
+    RoleRepository roleRepository;
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     public User findByUsername(String username) {
@@ -19,12 +27,71 @@ public class UserService {
     }
 
     public boolean isUserFoundByUsernameAndPassword(String username, String password) {
+        if (username.equals(Strings.EMPTY) || password.equals(Strings.EMPTY)) {
+            return false;
+        }
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        String passwordEncoded = userRepository.findByUsername(username).getPassword();
+        User userWithIdentifiedUsername = userRepository.findByUsername(username);
+        if (userWithIdentifiedUsername == null) {
+            return false;
+        }
+        String passwordEncoded = userWithIdentifiedUsername.getPassword();
         return passwordEncoder.matches(password, passwordEncoded);
     }
 
-    public void save(User user) {
+    public void addNewUser(User user) {
+        user.setActive(true);
+        Role roleUser = roleRepository.findByRole("ROLE_USER");
+        user.setRoles(Set.of(roleUser));
         userRepository.save(user);
+    }
+
+    public List<UserDto> getUsersForView() {
+        List<UserDto> users = new ArrayList<>();
+        Role roleAdmin = roleRepository.findByRole(ROLE_ADMIN);
+        userRepository.findAll().forEach(user -> users.add(new UserDto(user.getId(),
+                user.getUsername(),
+                user.getEmail(),
+                user.getRoles().contains(roleAdmin),
+                !user.isActive())));
+        return users;
+    }
+
+    public void updateUsers(Map<String, Boolean> updatedUsers) {
+        Map<Long, Boolean> isAdmin = new HashMap<>();
+        Map<Long, Boolean> isBlocked = new HashMap<>();
+        for (Map.Entry<String, Boolean> userOption : updatedUsers.entrySet()) {
+            String userOptionKey = userOption.getKey();
+            if (userOptionKey.startsWith("admin_")) {
+                Long userId = Long.parseLong(userOptionKey.replace("admin_", ""));
+                isAdmin.put(userId, userOption.getValue());
+            } else {
+                Long userId = Long.parseLong(userOptionKey.replace("blocked_", ""));
+                isBlocked.put(userId, userOption.getValue());
+            }
+
+        }
+
+        List<User> currentUsers = userRepository.findAll();
+        Role roleAdmin = roleRepository.findByRole(ROLE_ADMIN);
+        for (User user : currentUsers) {
+            if (isAdmin.get(user.getId()) && !user.getRoles().contains(roleAdmin)) {
+                user.getRoles().add(roleAdmin);
+                userRepository.save(user);
+            }
+            if (!isAdmin.get(user.getId()) && user.getRoles().contains(roleAdmin)) {
+                user.getRoles().remove(roleAdmin);
+                userRepository.save(user);
+            }
+
+            if (isBlocked.get(user.getId()) && user.isActive()) {
+                user.setActive(false);
+                userRepository.save(user);
+            }
+            if (!isBlocked.get(user.getId()) && !user.isActive()) {
+                user.setActive(true);
+                userRepository.save(user);
+            }
+        }
     }
 }

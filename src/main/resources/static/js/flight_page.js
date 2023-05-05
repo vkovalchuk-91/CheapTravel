@@ -1,42 +1,3 @@
-// Bootstrap validation function
-(() => {
-    'use strict'
-
-    // Fetch all the forms we want to apply custom Bootstrap validation styles to
-    const forms = document.querySelectorAll('.needs-validation')
-
-    // Loop over them and prevent submission
-    Array.from(forms).forEach(form => {
-        form.addEventListener('submit', event => {
-            if (!form.checkValidity()) {
-                event.preventDefault()
-                event.stopPropagation()
-            }
-
-            form.classList.add('was-validated')
-        }, false)
-    })
-})()
-
-// For hide/show sidebar at the main HTML page
-window.addEventListener('DOMContentLoaded', event => {
-
-    // Toggle the side navigation
-    const sidebarToggle = document.body.querySelector('#sidebarToggle');
-    if (sidebarToggle) {
-        // Uncomment Below to persist sidebar toggle between refreshes
-        // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-        //     document.body.classList.toggle('sb-sidenav-toggled');
-        // }
-        sidebarToggle.addEventListener('click', event => {
-            event.preventDefault();
-            document.body.classList.toggle('sb-sidenav-toggled');
-            localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
-        });
-    }
-
-});
-
 // slider days in each point options
 (function () {
     'use strict';
@@ -368,39 +329,4 @@ function setPagination() {
         showItems();
         updateInterface();
     });
-}
-
-// display information in log-in block
-$(document).ready(function() {
-    let navbar_dropdown = document.getElementById("navbar_dropdown");
-    let navbar_first = document.getElementById("navbar_first");
-    let navbar_second = document.getElementById("navbar_second");
-    let username = getUserInfo();
-    if (username === '') {
-        navbar_dropdown.innerHTML = "Зареєструватися";
-        navbar_first.innerHTML = `
-                    <a class="dropdown-item" href="/login">Увійти</a>
-        `;
-        navbar_second.innerHTML = `
-                    <a class="dropdown-item" href="/registration">Зареєструватися</a>
-        `;
-    } else {
-        navbar_dropdown.innerHTML = username;
-        navbar_first.innerHTML = `
-                    Користувач-${username}
-        `;
-        navbar_second.innerHTML = `
-                    <a class="dropdown-item" href="/logout">Вийти</a>
-        `;
-    }
-});
-
-// get current user username
-function getUserInfo() {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', '/user-info', false);
-    xhr.send();
-    if (xhr.status === 200) {
-        return xhr.responseText;
-    }
 }

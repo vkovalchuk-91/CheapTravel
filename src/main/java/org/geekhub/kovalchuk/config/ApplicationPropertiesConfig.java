@@ -9,6 +9,11 @@ public class ApplicationPropertiesConfig {
     private int maxMonths;
     @Value("${flight.properties.default.list.top.cities_in_operation_id}")
     private String topCitiesInOperationEntityId;
+    @Value("${flight.properties.default.list.top12.cities_in_operation_id}")
+    private String top12CitiesInOperationEntityId;
+
+    @Value("${flight.properties.default.cities_abbreviations}")
+    private String citiesAbbreviations;
     @Value("${flight.properties.request.interval_in_seconds}")
     private int requestIntervalInSeconds;
     @Value("${flight.properties.request.requests_per_minute}")
@@ -30,6 +35,22 @@ public class ApplicationPropertiesConfig {
 
     public void setTopCitiesInOperationEntityId(String topCitiesInOperationEntityId) {
         this.topCitiesInOperationEntityId = topCitiesInOperationEntityId;
+    }
+
+    public String getTop12CitiesInOperationEntityId() {
+        return top12CitiesInOperationEntityId;
+    }
+
+    public void setTop12CitiesInOperationEntityId(String top12CitiesInOperationEntityId) {
+        this.top12CitiesInOperationEntityId = top12CitiesInOperationEntityId;
+    }
+
+    public String getCitiesAbbreviations() {
+        return citiesAbbreviations;
+    }
+
+    public void setCitiesAbbreviations(String citiesAbbreviations) {
+        this.citiesAbbreviations = citiesAbbreviations;
     }
 
     public int getRequestIntervalInSeconds() {

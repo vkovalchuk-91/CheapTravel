@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class RoleService {
 
-    RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
     public RoleService(RoleRepository roleRepository) {
         this.roleRepository = roleRepository;
@@ -19,5 +19,17 @@ public class RoleService {
 
     public void save(Role role) {
         roleRepository.save(role);
+    }
+
+    public boolean isRolesTableEmpty() {
+        return roleRepository.count() == 0;
+    }
+    public void addRolesToDb() {
+        Role userRole = new Role();
+        userRole.setRole("ROLE_USER");
+        roleRepository.save(userRole);
+        Role adminRole = new Role();
+        adminRole.setRole("ROLE_ADMIN");
+        roleRepository.save(adminRole);
     }
 }

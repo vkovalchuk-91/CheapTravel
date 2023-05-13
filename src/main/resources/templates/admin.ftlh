@@ -21,17 +21,14 @@
             <a class="list-group-item list-group-item-action list-group-item-light p-3" id="change_cities_in_operation">
                 Змінити перелік міст, по яким здійснюється пошук
             </a>
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="change_cashing_months">
-                Змінити кількість місяців, на які кешуються ціни
-            </a>
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="update_locations">
-                Оновити перелік локацій SkyScanner API
-            </a>
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="update_routes">
-                Оновити доступність маршрутів
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="change_abbreviations">
+                Змінити абревіатури міст, що використовуються для пошуку в системі SkyScanner.com.ua
             </a>
             <a class="list-group-item list-group-item-action list-group-item-light p-3" id="edit_users">
                 Редагувати статус користувачів та їх ролі
+            </a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" id="other_options">
+                Інші налаштування
             </a>
         </div>
     </div>
@@ -40,7 +37,11 @@
         <!-- Top navigation-->
         <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
             <div class="container-fluid">
-                <button class="btn btn btn-outline-primary" id="sidebarToggle"><<</button>
+                <button class="btn btn btn-outline-primary" id="sidebarToggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-skip-backward-fill" viewBox="0 0 16 16">
+                        <path d="M.5 3.5A.5.5 0 0 0 0 4v8a.5.5 0 0 0 1 0V8.753l6.267 3.636c.54.313 1.233-.066 1.233-.697v-2.94l6.267 3.636c.54.314 1.233-.065 1.233-.696V4.308c0-.63-.693-1.01-1.233-.696L8.5 7.248v-2.94c0-.63-.692-1.01-1.233-.696L1 7.248V4a.5.5 0 0 0-.5-.5z"></path>
+                    </svg>
+                </button>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +76,7 @@
         </div>
 
         <div class="toast-container position-fixed bottom-0 end-0 p-3">
-            <div id="save_cities" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div id="main_alert" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="toast-header">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                          class="bi bi-exclamation-triangle-fill" viewBox="0 0 16 16">
@@ -95,8 +96,8 @@
     </div>
 </div>
 <!-- JS -->
-<script src="js/bootstrap.bundle.min.js"></script>
-<script src="js/jquery-3.6.4.min.js"></script>
+<script src="js/libraries/bootstrap.bundle.min.js"></script>
+<script src="js/libraries/jquery-3.6.4.min.js"></script>
 <script src="js/admin_page.js"></script>
 <script src="js/hide_show_sidebar.js"></script>
 <script src="js/display_login_block.js"></script>

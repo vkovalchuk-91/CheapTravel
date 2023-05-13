@@ -13,9 +13,10 @@ import java.util.*;
 
 @Service
 public class UserService {
-    UserRepository userRepository;
-    RoleRepository roleRepository;
-    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private static final String ROLE_ADMIN = "ROLE_ADMIN";
+    public static final String ROLE_USER = "ROLE_USER";
 
     public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
@@ -30,18 +31,23 @@ public class UserService {
         if (username.equals(Strings.EMPTY) || password.equals(Strings.EMPTY)) {
             return false;
         }
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         User userWithIdentifiedUsername = userRepository.findByUsername(username);
         if (userWithIdentifiedUsername == null) {
             return false;
         }
         String passwordEncoded = userWithIdentifiedUsername.getPassword();
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         return passwordEncoder.matches(password, passwordEncoded);
+    }
+
+    public boolean isUserBlockedByUsername(String username) {
+        User user = userRepository.findByUsername(username);
+        return !user.isActive();
     }
 
     public void addNewUser(User user) {
         user.setActive(true);
-        Role roleUser = roleRepository.findByRole("ROLE_USER");
+        Role roleUser = roleRepository.findByRole(ROLE_USER);
         user.setRoles(Set.of(roleUser));
         userRepository.save(user);
     }

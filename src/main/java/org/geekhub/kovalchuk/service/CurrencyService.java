@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CurrencyService {
-    CurrencyRepository currencyRepository;
+    private final CurrencyRepository currencyRepository;
 
     public CurrencyService(CurrencyRepository currencyRepository) {
         this.currencyRepository = currencyRepository;

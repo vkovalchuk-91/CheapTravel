@@ -1,5 +1,6 @@
 package org.geekhub.kovalchuk.model;
 
+import org.apache.logging.log4j.util.Strings;
 import org.geekhub.kovalchuk.model.entity.Flight;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 public class ManyFlightsUnit {
     private final List<Flight> flights;
     private double totalCost;
+    private String link = Strings.EMPTY;
 
     public ManyFlightsUnit(List<Flight> flights) {
         this.flights = flights;
@@ -17,7 +19,7 @@ public class ManyFlightsUnit {
     public ManyFlightsUnit(Flight flight) {
         flights = new ArrayList<>();
         flights.add(flight);
-        flights.forEach(f -> totalCost += f.getPrice());
+        totalCost += flight.getPrice();
     }
 
     public Flight getLastFlight() {
@@ -28,9 +30,8 @@ public class ManyFlightsUnit {
     public ManyFlightsUnit getNewCopyAndAddFlight(Flight flight) {
         ManyFlightsUnit newCopy = new ManyFlightsUnit(new ArrayList<>(flights));
         newCopy.getFlights().add(flight);
-        double totalCost0 = newCopy.getTotalCost();
-        double totalCost1 = totalCost0 + flight.getPrice();
-        newCopy.setTotalCost(totalCost1);
+        double totalCost = newCopy.getTotalCost() + flight.getPrice();
+        newCopy.setTotalCost(totalCost);
         return newCopy;
     }
 
@@ -44,6 +45,26 @@ public class ManyFlightsUnit {
 
     public void setTotalCost(double totalCost) {
         this.totalCost = totalCost;
+    }
+
+    public String getLink() {
+        return link;
+    }
+
+    public void setLink(String link) {
+        this.link = link;
+    }
+
+    public void getFlightSkyScannerLink() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("https://www.skyscanner.com.ua/transport/d/");
+        for (Flight flight : flights) {
+            sb.append(flight.getRoute().getFromCity().getSkyScannerAbbreviation()).append("/");
+            sb.append(flight.getFlightDate()).append("/");
+            sb.append(flight.getRoute().getToCity().getSkyScannerAbbreviation()).append("/");
+        }
+        sb.append("?stops=!oneStop,!twoPlusStops");
+        link = sb.toString();
     }
 
     @Override

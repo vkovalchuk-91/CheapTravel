@@ -9,18 +9,18 @@ import javax.persistence.Id;
 public class LocationType {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
     @Column(name = "type_name")
     private String name;
 
     public LocationType() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

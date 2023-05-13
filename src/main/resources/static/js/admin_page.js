@@ -10,25 +10,16 @@ $(function () {
         displayBlockChangeCitiesInOperation(information_block);
     })
 
-    $('#save_cities_button').on('click', function () {
-        console.log(1)
-        saveCities();
-    })
-
-    $('#change_cashing_months').on('click', function () {
-        displayBlockChangeCashingMonths(information_block);
-    })
-
-    $('#update_locations').on('click', function () {
-        displayBlockUpdateLocations(information_block);
-    })
-
-    $('#update_routes').on('click', function () {
-        displayBlockUpdateRoutes(information_block);
+    $('#change_abbreviations').on('click', function () {
+        displayBlockChangeAbbreviations(information_block);
     })
 
     $('#edit_users').on('click', function () {
         displayBlockEditUsers(information_block);
+    })
+
+    $('#other_options').on('click', function () {
+        displayBlockOtherOptions(information_block);
     })
 })
 
@@ -52,7 +43,7 @@ function displayBlockChangeCitiesInOperation(information_block) {
             html += `
                     <div class="row ms-3 col-12">
                         <div class="form-check form-switch">
-                            <label class="form-check-label" for="low_price_switcher">${city.cityName}</label>
+                            <label class="form-check-label" for="${city.cityId}">${city.cityName}</label>
                             <input class="form-check-input" type="checkbox" role="switch" id="${city.cityId}" ${checked}>
                         </div>
                     </div>
@@ -82,26 +73,26 @@ function getEuropeanCities() {
 
 // save and update cities in operation
 function saveCities() {
-        $('#save_cities_button').on('click', function () {
-            let information_block = document.getElementById("information_block");
-            let inputs = information_block.querySelectorAll("input");
-            let cities = new Map();
-            for (const input of inputs) {
-                cities.set(input.id, input.checked);
+    $('#save_cities_button').on('click', function () {
+        let information_block = document.getElementById("information_block");
+        let inputs = information_block.querySelectorAll("input");
+        let cities = new Map();
+        for (const input of inputs) {
+            cities.set(input.id, input.checked);
+        }
+        $.ajax({
+            url: '/admin/cities',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(Object.fromEntries(cities)),
+            success: function () {
+                displayCitiesValidationMessage();
             }
-            $.ajax({
-                url: '/admin/update_cities',
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: JSON.stringify(Object.fromEntries(cities)),
-                success: function () {
-                    displayCitiesValidationMessage();
-                }
-            });
-        })
-    }
+        });
+    })
+}
 
 // show save alert message
 function displayCitiesValidationMessage() {
@@ -110,48 +101,89 @@ function displayCitiesValidationMessage() {
     let alert_message = document.getElementById("alert_message");
     alert_message.innerHTML = `Перелік міст оновлено, через деякий час дані, щодо вартості авіаперельтів буде оновлено та збережено в системі!`;
 
-    const save_cities = document.getElementById('save_cities');
-    const save_cities_message = bootstrap.Toast.getOrCreateInstance(save_cities);
-    save_cities_message.show();
+    const main_alert = document.getElementById('main_alert');
+    const main_alert_message = bootstrap.Toast.getOrCreateInstance(main_alert);
+    main_alert_message.show();
 }
 
+// display Change abbreviations for Cities which used in SkyScanner.com.ua search
+function displayBlockChangeAbbreviations(information_block) {
+    let cities = getCitiesAbbreviation();
+    let citiesObject = JSON.parse(cities);
+    let countries = citiesObject.europeCitiesWithCountry;
 
-function displayBlockChangeCashingMonths(information_block) {
-    information_block.innerHTML = `
-            <h1 class="d-flex justify-content-center mt-4">В розробці, буде додано пізніше!</h1>
-<!--            <div id="main_content">-->
-<!--                <p>Ковальчук Володимир</p>-->
-<!--                <p>-->
-<!--                    GeekHub 2023-->
-<!--                </p>-->
-<!--            </div>-->
-        `;
+    let html = '';
+    for (const country in countries) {
+        const cities = countries[country];
+        html += `
+                    <h6 class="mt-2">
+                         ${country}
+                    </h6>
+                `;
+        for (const city of cities) {
+            html += `
+                    <div class="row ms-3 col-12 input-group-sm">
+                            <label style="width: 250px" class="col-form-label" for="${city.cityId}">${city.cityName}</label>
+                            <input style="width: 60px" class="form-control" required type="text" id="${city.cityId}" value="${city.abbreviation}" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+                `;
+        }
+    }
+    html += `
+                <button id="save_abbreviations_button" class="btn btn-outline-primary mt-4 mb-5">
+                    Зберегти зміни абревіатур міст
+                </button>
+                `;
+
+    information_block.innerHTML = html;
+    saveCitiesAbbreviation();
 }
 
-function displayBlockUpdateLocations(information_block) {
-    information_block.innerHTML = `
-            <h1 class="d-flex justify-content-center mt-4">В розробці, буде додано пізніше!</h1>
-<!--            <div id="main_content">-->
-<!--                <p>Ковальчук Володимир</p>-->
-<!--                <p>-->
-<!--                    GeekHub 2023-->
-<!--                </p>-->
-<!--            </div>-->
-        `;
+// get European Cities List with countries and string Abbreviation?
+function getCitiesAbbreviation() {
+    let xhr = new XMLHttpRequest();
+    let endpoint = '/admin/abbreviations';
+    xhr.open('GET', endpoint, false);
+    xhr.send();
+    if (xhr.status === 200) {
+        return xhr.responseText;
+    }
 }
 
-function displayBlockUpdateRoutes(information_block) {
-    information_block.innerHTML = `
-            <h1 class="d-flex justify-content-center mt-4">В розробці, буде додано пізніше!</h1>
-<!--            <div id="main_content">-->
-<!--                <p>Ковальчук Володимир</p>-->
-<!--                <p>-->
-<!--                    GeekHub 2023-->
-<!--                </p>-->
-<!--            </div>-->
-        `;
+// save and update cities Abbreviation
+function saveCitiesAbbreviation() {
+    $('#save_abbreviations_button').on('click', function () {
+        let information_block = document.getElementById("information_block");
+        let inputs = information_block.querySelectorAll("input");
+        let cities = new Map();
+        for (const input of inputs) {
+            cities.set(input.id, input.value);
+        }
+        $.ajax({
+            url: '/admin/abbreviations',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: JSON.stringify(Object.fromEntries(cities)),
+            success: function () {
+                displayAbbreviationsValidationMessage();
+            }
+        });
+    })
 }
 
+// show save Abbreviations alert message
+function displayAbbreviationsValidationMessage() {
+    let alert_header = document.getElementById("alert_header");
+    alert_header.innerHTML = `&nbsp;&nbsp;&nbsp;Зміна абревіатур міст в додатку`;
+    let alert_message = document.getElementById("alert_message");
+    alert_message.innerHTML = `Абревіатури міст оновлено, збережено в системі та готові для використання для пошуку в системі SkyScanner.com.ua!`;
+
+    const main_alert = document.getElementById('main_alert');
+    const main_alert_message = bootstrap.Toast.getOrCreateInstance(main_alert);
+    main_alert_message.show();
+}
 
 // display change Users status parameters
 function displayBlockEditUsers(information_block) {
@@ -225,7 +257,7 @@ function saveUsers() {
             users.set(input.id, input.checked);
         }
         $.ajax({
-            url: '/admin/update_users',
+            url: '/admin/users',
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -245,7 +277,138 @@ function displayUsersValidationMessage() {
     let alert_message = document.getElementById("alert_message");
     alert_message.innerHTML = `Статус та права користувачів оновлено та збережено в системі!`;
 
-    const save_cities = document.getElementById('save_cities');
-    const save_cities_message = bootstrap.Toast.getOrCreateInstance(save_cities);
-    save_cities_message.show();
+    const main_alert = document.getElementById('main_alert');
+    const main_alert_message = bootstrap.Toast.getOrCreateInstance(main_alert);
+    main_alert_message.show();
+}
+
+function displayBlockOtherOptions(information_block) {
+    let months_number = getMonthsNumber();
+    let html = '';
+    html += `
+            <button id="update_locations_button" class="btn btn-outline-primary mt-4 mb-4">
+                Оновити перелік локацій SkyScanner API
+            </button>
+            <hr>
+            <button id="update_routes_button" class="btn btn-outline-primary mt-4 mb-4">
+                Оновити доступність маршрутів
+            </button>
+            <hr>
+            <div class="row  mt-4 mb-4">
+                <div class="col-1">
+                    <select class="form-select" required id="updated_months_number" name="to">
+        `;
+
+    for (let i = 1; i <= 12; i++) {
+        let selected = "";
+        if (i == months_number) {
+            selected = "selected";
+        }
+        html += `<option ${selected} value="${i}">${i}</option>`;
+    }
+
+    html += `
+                    </select>
+                    </div>
+                    <div class="col-6">
+                    <button id="change_months_number_button" class="btn btn-outline-primary">
+                        Змінити кількість місяців, на які кешуються ціни
+                    </button>
+                    </div>
+            </div>
+        `;
+    information_block.innerHTML = html;
+    updateLocations();
+    updateRoutes();
+    changeMonthsNumber();
+}
+
+function getMonthsNumber() {
+    let xhr = new XMLHttpRequest();
+    let endpoint = '/admin/months';
+    xhr.open('GET', endpoint, false);
+    xhr.send();
+    if (xhr.status === 200) {
+        return xhr.responseText;
+    }
+}
+
+// save and update users
+function updateLocations() {
+    $('#update_locations_button').on('click', function () {
+        $.ajax({
+            url: '/admin/locations',
+            method: 'POST',
+            success: function () {
+                displayUpdateLocationsMessage();
+            }
+        });
+    })
+}
+
+// show Update Locations alert message
+function displayUpdateLocationsMessage() {
+    let alert_header = document.getElementById("alert_header");
+    alert_header.innerHTML = `&nbsp;&nbsp;&nbsp;Оновлення переліку локацій`;
+    let alert_message = document.getElementById("alert_message");
+    alert_message.innerHTML = `Запущено процес оновлення переліку локацій SkyScanner, локації оновлено та збережено в системі!`;
+
+    const main_alert = document.getElementById('main_alert');
+    const main_alert_message = bootstrap.Toast.getOrCreateInstance(main_alert);
+    main_alert_message.show();
+}
+
+// save and update users
+function updateRoutes() {
+    $('#update_routes_button').on('click', function () {
+        $.ajax({
+            url: '/admin/routes',
+            method: 'POST',
+            success: function () {
+                displayUpdateRoutesMessage();
+            }
+        });
+    })
+}
+
+// show Update Routes alert message
+function displayUpdateRoutesMessage() {
+    let alert_header = document.getElementById("alert_header");
+    alert_header.innerHTML = `&nbsp;&nbsp;&nbsp;Оновлення доступності маршрутів`;
+    let alert_message = document.getElementById("alert_message");
+    alert_message.innerHTML = `Запущено процес оновлення доступності маршрутів, через деякий час маршрути буде оновлено та збережено в системі!`;
+
+    const main_alert = document.getElementById('main_alert');
+    const main_alert_message = bootstrap.Toast.getOrCreateInstance(main_alert);
+    main_alert_message.show();
+}
+
+// save and update users
+function changeMonthsNumber() {
+    $('#change_months_number_button').on('click', function () {
+        let months_number = document.getElementById("updated_months_number").value;
+        $.ajax({
+            url: '/admin/months',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            data: months_number,
+            success: function () {
+                displayChangeMonthsNumberMessage();
+            }
+        });
+    })
+}
+
+// show Update Routes alert message
+function displayChangeMonthsNumberMessage() {
+    let alert_header = document.getElementById("alert_header");
+    alert_header.innerHTML = `&nbsp;&nbsp;&nbsp;Зміна кількості місяців, на які кешуються ціни`;
+    let alert_message = document.getElementById("alert_message");
+    alert_message.innerHTML = `Кількість місяців, на які кешуються ціни оновлено, через деякий час дані щодо польотів буде оновлено та збережено в системі!`;
+
+    const main_alert = document.getElementById('main_alert');
+    const main_alert_message = bootstrap.Toast.getOrCreateInstance(main_alert);
+    main_alert_message.show();
 }

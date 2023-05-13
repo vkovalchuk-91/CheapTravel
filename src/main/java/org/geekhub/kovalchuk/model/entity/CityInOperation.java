@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 public class CityInOperation {
     @Id
     @GeneratedValue
-    private long id;
+    private Long id;
     @OneToOne
     @JoinColumn(name = "city_id")
     private Location location;
@@ -18,11 +18,11 @@ public class CityInOperation {
     public CityInOperation() {
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

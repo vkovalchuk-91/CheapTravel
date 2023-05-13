@@ -285,8 +285,6 @@
                         </div>
                     </div>
                 </div>
-                <#--                devider-->
-                <hr>
 
                 <#--                remove/add flight button-->
                 <div class="d-flex justify-content-center">
@@ -372,7 +370,11 @@
         <!-- Top navigation-->
         <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
             <div class="container-fluid">
-                <button class="btn btn btn-outline-primary" id="sidebarToggle"><<</button>
+                <button class="btn btn btn-outline-primary" id="sidebarToggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-skip-backward-fill" viewBox="0 0 16 16">
+                        <path d="M.5 3.5A.5.5 0 0 0 0 4v8a.5.5 0 0 0 1 0V8.753l6.267 3.636c.54.313 1.233-.066 1.233-.697v-2.94l6.267 3.636c.54.314 1.233-.065 1.233-.696V4.308c0-.63-.693-1.01-1.233-.696L8.5 7.248v-2.94c0-.63-.692-1.01-1.233-.696L1 7.248V4a.5.5 0 0 0-.5-.5z"></path>
+                    </svg>
+                </button>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                         data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -410,12 +412,12 @@
     </div>
 </div>
 <!-- JS -->
-<script src="js/bootstrap.bundle.min.js"></script>
-<script src="js/jquery-3.6.4.min.js"></script>
-<script src="js/dselect.js"></script>
-<script src="js/rSlider.min.js"></script>
-<script src="js/moment.min.js"></script>
-<script src="js/daterangepicker.min.js"></script>
+<script src="js/libraries/bootstrap.bundle.min.js"></script>
+<script src="js/libraries/jquery-3.6.4.min.js"></script>
+<script src="js/libraries/dselect.js"></script>
+<script src="js/libraries/rSlider.min.js"></script>
+<script src="js/libraries/moment.min.js"></script>
+<script src="js/libraries/daterangepicker.min.js"></script>
 <script src="js/flight_page.js"></script>
 <script src="js/hide_show_sidebar.js"></script>
 <script src="js/display_login_block.js"></script>

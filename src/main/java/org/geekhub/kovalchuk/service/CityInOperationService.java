@@ -19,15 +19,15 @@ import java.util.stream.Collectors;
 
 @Service
 public class CityInOperationService {
-    public static final String TYPE_CONTINENT = "PLACE_TYPE_CONTINENT";
-    public static final String TYPE_AIRPORT = "PLACE_TYPE_AIRPORT";
-    CityInOperationRepository cityInOperationRepository;
-    LocationRepository locationRepository;
-    LocationTypeRepository locationTypeRepository;
-    TaskQueueRepository taskQueueRepository;
-    ApplicationPropertiesConfig properties;
+    private final CityInOperationRepository cityInOperationRepository;
+    private final LocationRepository locationRepository;
+    private final LocationTypeRepository locationTypeRepository;
+    private final TaskQueueRepository taskQueueRepository;
+    private final ApplicationPropertiesConfig properties;
     private List<LocationInOperationDto> cashedLocationsInOperation = new ArrayList<>();
     private List<LocationInOperationDto> cashedCitiesInOperation = new ArrayList<>();
+    private static final String TYPE_CONTINENT = "PLACE_TYPE_CONTINENT";
+    private static final String TYPE_AIRPORT = "PLACE_TYPE_AIRPORT";
 
     public CityInOperationService(CityInOperationRepository cityInOperationRepository,
                                   LocationRepository locationRepository,
@@ -48,6 +48,27 @@ public class CityInOperationService {
     public void addOrUpdateTop100AirportCitiesToDb() {
         List<Integer> topCitiesInOperationEntityId =
                 Arrays.stream(properties.getTopCitiesInOperationEntityId().split(", "))
+                        .map(Integer::parseInt)
+                        .collect(Collectors.toList());
+
+        for (Integer cityEntityId : topCitiesInOperationEntityId) {
+            Location cityLocation = locationRepository.findLocationByEntityId(cityEntityId);
+            CityInOperation cityInOperation = cityInOperationRepository.findCityInOperationByLocation(cityLocation);
+            if (cityInOperation == null) {
+                cityInOperation = new CityInOperation();
+                cityInOperation.setLocation(cityLocation);
+            }
+            cityInOperation.setActivity(true);
+            cityInOperation.setAddDate(LocalDateTime.now());
+            cityInOperation.setActivatingDate(LocalDateTime.now());
+
+            cityInOperationRepository.save(cityInOperation);
+        }
+    }
+
+    public void addOrUpdateTop12AirportCitiesToDb() {
+        List<Integer> topCitiesInOperationEntityId =
+                Arrays.stream(properties.getTop12CitiesInOperationEntityId().split(", "))
                         .map(Integer::parseInt)
                         .collect(Collectors.toList());
 
@@ -112,7 +133,7 @@ public class CityInOperationService {
 
         List<Location> countriesInOperation = citiesInOperation.stream()
                 .map(Location::getParentId)
-                .map(id -> locationRepository.getById(id))
+                .map(id -> locationRepository.findLocationByEntityId(id))
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -122,7 +143,7 @@ public class CityInOperationService {
                     countryWithCitiesLocations.add(new LocationInOperationDto(
                             country.getEntityId(), false, country.getName()));
                     citiesInOperation.stream()
-                            .filter(city -> city.getParentId() == country.getEntityId())
+                            .filter(city -> city.getParentId().equals(country.getEntityId()))
                             .forEach(city -> countryWithCitiesLocations.add(new LocationInOperationDto(
                                     city.getEntityId(), true, city.getName())));
                 });
@@ -152,14 +173,14 @@ public class CityInOperationService {
 
     public CitiesSelectorDto getEuropeanCitiesForView() {
         LocationType continentType = locationTypeRepository.findLocationTypeEntityByName(TYPE_CONTINENT);
-        Location europe = locationRepository.findLocationByNameAndLocationType("Європа", continentType);
+        Location europe = locationRepository.findLocationByNameAndLocationTypeAndActivityTrue("Європа", continentType);
         List<Location> europeCountries = locationRepository.findLocationsByParentId(europe.getEntityId());
         List<Long> europeCountriesIds = europeCountries.stream()
                 .map(Location::getEntityId)
                 .collect(Collectors.toList());
 
         LocationType airportType = locationTypeRepository.findLocationTypeEntityByName(TYPE_AIRPORT);
-        List<Long> airportsIds = locationRepository.findLocationsByLocationType(airportType).stream()
+        List<Long> airportsIds = locationRepository.findLocationsByLocationTypeAndActivityTrue(airportType).stream()
                 .map(Location::getParentId)
                 .collect(Collectors.toList());
         List<Location> europeCities = locationRepository.findLocationsByParentIdIn(europeCountriesIds).stream()
@@ -174,13 +195,16 @@ public class CityInOperationService {
         for (Location country : europeCountries) {
             long countryEntityId = country.getEntityId();
             List<Location> countryCities = europeCities.stream()
-                    .filter(location -> location.getParentId() == countryEntityId)
+                    .filter(location -> location.getParentId().equals(countryEntityId))
                     .collect(Collectors.toList());
 
             List<City> cities = countryCities.stream()
                     .map(cityLocation -> new City(cityLocation.getEntityId(),
                             cityLocation.getName(),
-                            citiesInOperation.contains(cityLocation)))
+                            citiesInOperation.stream()
+                                    .map(Location::getEntityId)
+                                    .collect(Collectors.toList())
+                                    .contains(cityLocation.getEntityId())))
                     .collect(Collectors.toList());
 
             europeCitiesWithCountry.put(country.getName(), cities);

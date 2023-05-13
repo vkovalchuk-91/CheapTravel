@@ -9,8 +9,8 @@ import java.time.LocalDateTime;
 @Entity
 public class Location {
     @Id
-    private long entityId;
-    private long parentId;
+    private Long entityId;
+    private Long parentId;
     private String name;
     @OneToOne
     @JoinColumn(name = "type_id")
@@ -19,23 +19,25 @@ public class Location {
     private double latitude;
     private double longitude;
     private LocalDateTime addDate;
+    private String skyScannerAbbreviation;
+    private boolean activity;
 
     public Location() {
     }
 
-    public long getEntityId() {
+    public Long getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(long entityId) {
+    public void setEntityId(Long entityId) {
         this.entityId = entityId;
     }
 
-    public long getParentId() {
+    public Long getParentId() {
         return parentId;
     }
 
-    public void setParentId(long parentId) {
+    public void setParentId(Long parentId) {
         this.parentId = parentId;
     }
 
@@ -85,5 +87,21 @@ public class Location {
 
     public void setAddDate(LocalDateTime addDate) {
         this.addDate = addDate;
+    }
+
+    public String getSkyScannerAbbreviation() {
+        return skyScannerAbbreviation;
+    }
+
+    public void setSkyScannerAbbreviation(String skyScannerAbbreviation) {
+        this.skyScannerAbbreviation = skyScannerAbbreviation;
+    }
+
+    public boolean isActivity() {
+        return activity;
+    }
+
+    public void setActivity(boolean activity) {
+        this.activity = activity;
     }
 }

@@ -9,21 +9,20 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.util.Queue;
 
 @DisallowConcurrentExecution
 @Component
 public class MainTaskExecutor implements Job {
-    LocationsService locationsService;
-    CityInOperationService cityInOperationService;
-    CurrencyService currencyService;
-    RouteService routeService;
-    TaskQueueRepository taskQueueRepository;
-    MonthPricesService monthPricesService;
-    FlightMatcherService flightMatcherService;
-    ApplicationPropertiesConfig properties;
-    boolean isFirstRunning = true;
+    private final LocationsService locationsService;
+    private final CityInOperationService cityInOperationService;
+    private final CurrencyService currencyService;
+    private final RouteService routeService;
+    private final TaskQueueRepository taskQueueRepository;
+    private final MonthPricesService monthPricesService;
+    private final RoleService roleService;
+    private final ApplicationPropertiesConfig properties;
+    private static boolean isFirstRunning = true;
 
     public MainTaskExecutor(LocationsService locationsService,
                             CityInOperationService cityInOperationService,
@@ -31,7 +30,7 @@ public class MainTaskExecutor implements Job {
                             RouteService routeService,
                             TaskQueueRepository taskQueueRepository,
                             MonthPricesService monthPricesService,
-                            FlightMatcherService flightMatcherService,
+                            RoleService roleService,
                             ApplicationPropertiesConfig properties) {
         this.locationsService = locationsService;
         this.cityInOperationService = cityInOperationService;
@@ -39,14 +38,16 @@ public class MainTaskExecutor implements Job {
         this.routeService = routeService;
         this.taskQueueRepository = taskQueueRepository;
         this.monthPricesService = monthPricesService;
-        this.flightMatcherService = flightMatcherService;
+        this.roleService = roleService;
         this.properties = properties;
     }
 
     @Override
     public void execute(JobExecutionContext context) {
         if (isFirstRunning) {
+            initRoles();
             initLocations();
+            updateAbbreviations();
             initCitiesInOperation();
             initCurrencies();
             initRoutes();
@@ -56,19 +57,27 @@ public class MainTaskExecutor implements Job {
         executeTasksFromMainQueue();
     }
 
+    private void initRoles() {
+        if (roleService.isRolesTableEmpty()) {
+            roleService.addRolesToDb();
+        }
+    }
+
     private void initLocations() {
         if (locationsService.isLocationTableEmpty()) {
-            try {
-                locationsService.saveOrUpdateLocationsToDb();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+            locationsService.saveOrUpdateLocationsToDb();
+        }
+    }
+
+    private void updateAbbreviations() {
+        if (!locationsService.isLocationTableEmpty()) {
+            locationsService.updateAbbreviations();
         }
     }
 
     private void initCitiesInOperation() {
         if (cityInOperationService.isCityInOperationTableEmpty()) {
-            cityInOperationService.addOrUpdateTop100AirportCitiesToDb();
+            cityInOperationService.addOrUpdateTop12AirportCitiesToDb();
         }
     }
 

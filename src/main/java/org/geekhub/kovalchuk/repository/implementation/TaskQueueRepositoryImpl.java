@@ -1,11 +1,12 @@
-package org.geekhub.kovalchuk.repository;
+package org.geekhub.kovalchuk.repository.implementation;
 
-import org.springframework.stereotype.Service;
+import org.geekhub.kovalchuk.repository.TaskQueueRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-@Service
+@Repository
 public class TaskQueueRepositoryImpl implements TaskQueueRepository {
     private final Queue<Runnable> taskQueue = new LinkedList<>();
     private boolean needToStartUpdateRoutes = false;

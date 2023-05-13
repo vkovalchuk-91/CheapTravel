@@ -7,7 +7,7 @@ import org.geekhub.kovalchuk.json.entity.MonthPriceJsonResponse.Content.Results.
 import org.geekhub.kovalchuk.model.entity.Currency;
 import org.geekhub.kovalchuk.model.entity.Flight;
 import org.geekhub.kovalchuk.model.entity.Route;
-import org.geekhub.kovalchuk.repository.*;
+import org.geekhub.kovalchuk.repository.TaskQueueRepository;
 import org.geekhub.kovalchuk.repository.jpa.FlightRepository;
 import org.geekhub.kovalchuk.repository.jpa.RouteRepository;
 import org.springframework.stereotype.Service;
@@ -17,13 +17,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MonthPricesService {
-    FlightRepository flightRepository;
-    RouteRepository routeRepository;
-    TaskQueueRepository taskQueueRepository;
-    ApplicationPropertiesConfig properties;
+    private final FlightRepository flightRepository;
+    private final RouteRepository routeRepository;
+    private final TaskQueueRepository taskQueueRepository;
+    private int maxMonthsCashingNumber;
 
     public MonthPricesService(FlightRepository flightRepository,
                               RouteRepository routeRepository,
@@ -32,7 +33,7 @@ public class MonthPricesService {
         this.flightRepository = flightRepository;
         this.routeRepository = routeRepository;
         this.taskQueueRepository = taskQueueRepository;
-        this.properties = properties;
+        maxMonthsCashingNumber = properties.getMaxMonths();
     }
 
     public void runFlightPricesUpdater(Currency currency) {
@@ -41,7 +42,7 @@ public class MonthPricesService {
         List<Route> allRoutes = routeRepository.findAll();
         for (Route route : allRoutes) {
             if (route.isHaveFlights()) {
-                for (int i = 0; i < properties.getMaxMonths(); i++) {
+                for (int i = 0; i < maxMonthsCashingNumber; i++) {
                     LocalDate date = currentDate.plusMonths(i);
                     int year = date.getYear();
                     int month = date.getMonthValue();
@@ -54,6 +55,30 @@ public class MonthPricesService {
                 }
             }
         }
+    }
+
+    public int getMaxMonthsCashingNumber() {
+        return maxMonthsCashingNumber;
+    }
+
+    public void setMaxMonthsCashingNumber(int maxMonthsCashingNumber) {
+        this.maxMonthsCashingNumber = maxMonthsCashingNumber;
+    }
+
+    private void updateFlightsActivity() {
+        List<Route> deactivatedRoutes = routeRepository.findAll().stream()
+                .filter(route -> !route.isActivity())
+                .collect(Collectors.toList());
+
+        deactivatedRoutes.forEach(route -> {
+            List<Flight> flights = flightRepository.findFlightsByRouteAndActivityTrue(route);
+            flights.forEach(flight -> flight.setActivity(false));
+            flightRepository.saveAll(flights);
+        });
+
+        List<Flight> flights = flightRepository.findFlightsByFlightDateBeforeAndActivityTrue(LocalDate.now());
+        flights.forEach(flight -> flight.setActivity(false));
+        flightRepository.saveAll(flights);
     }
 
     private void addRequestTaskToQueue(Currency currency, Route route, int year, int month) throws IOException {

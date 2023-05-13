@@ -5,12 +5,9 @@ import org.geekhub.kovalchuk.json.JsonRequestMaker;
 import org.geekhub.kovalchuk.json.entity.MonthPriceJsonResponse;
 import org.geekhub.kovalchuk.model.entity.CityInOperation;
 import org.geekhub.kovalchuk.model.entity.Location;
-import org.geekhub.kovalchuk.model.entity.LocationType;
 import org.geekhub.kovalchuk.model.entity.Route;
-import org.geekhub.kovalchuk.repository.*;
+import org.geekhub.kovalchuk.repository.TaskQueueRepository;
 import org.geekhub.kovalchuk.repository.jpa.CityInOperationRepository;
-import org.geekhub.kovalchuk.repository.jpa.LocationRepository;
-import org.geekhub.kovalchuk.repository.jpa.LocationTypeRepository;
 import org.geekhub.kovalchuk.repository.jpa.RouteRepository;
 import org.springframework.stereotype.Service;
 
@@ -21,22 +18,15 @@ import java.util.List;
 
 @Service
 public class RouteService {
-    public static final String TYPE_CITY = "PLACE_TYPE_CITY";
-    RouteRepository routeRepository;
-    CityInOperationRepository cityRepository;
-    LocationTypeRepository locationTypeRepository;
-    LocationRepository locationRepository;
-    TaskQueueRepository taskQueueRepository;
+    private final RouteRepository routeRepository;
+    private final CityInOperationRepository cityRepository;
+    private final TaskQueueRepository taskQueueRepository;
 
     public RouteService(RouteRepository routeRepository,
                         CityInOperationRepository cityRepository,
-                        LocationTypeRepository locationTypeRepository,
-                        LocationRepository locationRepository,
                         TaskQueueRepository taskQueueRepository) {
         this.routeRepository = routeRepository;
         this.cityRepository = cityRepository;
-        this.locationTypeRepository = locationTypeRepository;
-        this.locationRepository = locationRepository;
         this.taskQueueRepository = taskQueueRepository;
     }
 
@@ -44,23 +34,21 @@ public class RouteService {
         return routeRepository.count() == 0;
     }
 
-    public Route getRouteById(long routeId) {
-        return routeRepository.findById(routeId).orElse(null);
-    }
-
     public void runRoutesUpdater() {
         List<Route> allRoutes = routeRepository.findAll();
         allRoutes.forEach(route -> route.setActivity(false));
+        routeRepository.saveAll(allRoutes);
 
         List<CityInOperation> cities = cityRepository.findAll();
 
+        int addedTasksCounter = 0;
         for (CityInOperation fromCity : cities) {
             if (fromCity.isActivity()) {
                 for (CityInOperation toCity : cities) {
                     if (toCity.isActivity() && !fromCity.equals(toCity)) {
                         Location fromCityLocation = fromCity.getLocation();
                         Location toCityLocation = toCity.getLocation();
-                        Route route = getRouteByLocations(fromCityLocation, toCityLocation);
+                        Route route = routeRepository.findRouteByFromCityAndToCity(fromCityLocation, toCityLocation);
                         if (route == null) {
                             route = new Route();
                             route.setFromCity(fromCityLocation);
@@ -68,25 +56,16 @@ public class RouteService {
                         }
 
                         addRequestTaskToQueue(route);
+                        addedTasksCounter++;
                     }
                 }
             }
         }
+        System.out.println("Routes updater is running, added " + addedTasksCounter + " new tasks!");
     }
 
-    public Route getRouteByCitiesNames(String fromCity, String toCity) {
-        LocationType locationType = locationTypeRepository.findLocationTypeEntityByName(TYPE_CITY);
-        Location fromCityLocation = locationRepository.findLocationByNameAndLocationType(fromCity, locationType);
-        Location toCityLocation = locationRepository.findLocationByNameAndLocationType(toCity, locationType);
-
-        return routeRepository.findRouteByFromCityAndToCity(fromCityLocation, toCityLocation);
-    }
-
-    public Route getRouteByCitiesIds(long fromCityId, long toCityId) {
-        Location fromCityLocation = locationRepository.findLocationByEntityId(fromCityId);
-        Location toCityLocation = locationRepository.findLocationByEntityId(toCityId);
-
-        return routeRepository.findRouteByFromCityAndToCity(fromCityLocation, toCityLocation);
+    public void setNeedToStartUpdateRoutes() {
+        taskQueueRepository.setNeedToStartUpdateRoutes(true);
     }
 
     private void addRequestTaskToQueue(Route route) {
@@ -115,10 +94,6 @@ public class RouteService {
                 .count();
 
         return numberOfDirectFlights > 0;
-    }
-
-    private Route getRouteByLocations(Location fromCityLocation, Location toCityLocation) {
-        return routeRepository.findRouteByFromCityAndToCity(fromCityLocation, toCityLocation);
     }
 
     private class RouteSetHaveFlightAndSaveToDbTask implements Runnable {

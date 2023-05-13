@@ -2,15 +2,11 @@
 document.getElementById("register-form").addEventListener("submit", function (event) {
     if (!validatePasswords()) {
         event.preventDefault();
-        const different_passwords = document.getElementById('different_passwords');
-        const different_passwords_message = bootstrap.Toast.getOrCreateInstance(different_passwords);
-        different_passwords_message.show();
+        displayDifferentPasswordsMessage();
     }
     if (validateUserExists() === 'true') {
         event.preventDefault();
-        const user_exist = document.getElementById('user_exist');
-        const user_exist_message = bootstrap.Toast.getOrCreateInstance(user_exist);
-        user_exist_message.show();
+        displayUserExistsMessage();
     }
 });
 
@@ -31,4 +27,28 @@ function validateUserExists() {
     if (xhr.status === 200) {
         return xhr.responseText;
     }
+}
+
+// show Different Passwords alert message
+function displayDifferentPasswordsMessage() {
+    let alert_header = document.getElementById("alert_header");
+    alert_header.innerHTML = `&nbsp;&nbsp;&nbsp;Введено некоректні дані`;
+    let alert_message = document.getElementById("alert_message");
+    alert_message.innerHTML = `Введені паролі не співпадають. Введіть однакові паролі!`;
+
+    const main_alert = document.getElementById('main_alert');
+    const main_alert_message = bootstrap.Toast.getOrCreateInstance(main_alert);
+    main_alert_message.show();
+}
+
+// show User Exists alert message
+function displayUserExistsMessage() {
+    let alert_header = document.getElementById("alert_header");
+    alert_header.innerHTML = `&nbsp;&nbsp;&nbsp;Введено некоректні дані`;
+    let alert_message = document.getElementById("alert_message");
+    alert_message.innerHTML = `Введене ім'я користувача вже існує. Введіть інше ім'я користувача!`;
+
+    const main_alert = document.getElementById('main_alert');
+    const main_alert_message = bootstrap.Toast.getOrCreateInstance(main_alert);
+    main_alert_message.show();
 }

@@ -1,12 +1,12 @@
 package org.geekhub.kovalchuk.service;
 
-import org.geekhub.kovalchuk.config.ApplicationPropertiesConfig;
-import org.geekhub.kovalchuk.model.*;
+import org.geekhub.kovalchuk.model.ManyFlightsUnit;
 import org.geekhub.kovalchuk.model.entity.*;
 import org.geekhub.kovalchuk.model.request.SearchParamsRequest;
+import org.geekhub.kovalchuk.repository.jpa.CurrencyRepository;
+import org.geekhub.kovalchuk.repository.jpa.LocationRepository;
 import org.geekhub.kovalchuk.repository.jpa.CityInOperationRepository;
 import org.geekhub.kovalchuk.repository.jpa.FlightRepository;
-import org.geekhub.kovalchuk.repository.jpa.LocationRepository;
 import org.geekhub.kovalchuk.repository.jpa.RouteRepository;
 import org.springframework.stereotype.Service;
 
@@ -20,32 +20,29 @@ import java.util.stream.Collectors;
 
 @Service
 public class FlightMatcherService {
-    FlightRepository flightRepository;
-    CityInOperationRepository cityRepository;
-    RouteRepository routeRepository;
-    LocationRepository locationRepository;
-    CurrencyService currencyService;
-    ApplicationPropertiesConfig properties;
-    public static final String TYPE_CITY = "PLACE_TYPE_CITY";
+    private final LocationRepository locationRepository;
+    private final FlightRepository flightRepository;
+    private final CityInOperationRepository cityRepository;
+    private final RouteRepository routeRepository;
+    private final CurrencyRepository currencyRepository;
+    private static final String TYPE_CITY = "PLACE_TYPE_CITY";
 
     public FlightMatcherService(FlightRepository flightRepository,
                                 CityInOperationRepository cityRepository,
                                 RouteRepository routeRepository,
                                 LocationRepository locationRepository,
-                                CurrencyService currencyService,
-                                ApplicationPropertiesConfig properties) {
+                                CurrencyRepository currencyRepository) {
         this.flightRepository = flightRepository;
         this.cityRepository = cityRepository;
         this.routeRepository = routeRepository;
         this.locationRepository = locationRepository;
-        this.currencyService = currencyService;
-        this.properties = properties;
+        this.currencyRepository = currencyRepository;
     }
 
     public List<ManyFlightsUnit> getFlightsByRequestParams(SearchParamsRequest searchParamsRequest) {
 
         List<ManyFlightsUnit> outputFlightsList;
-        Currency currency = currencyService.getCurrencyByCode("USD");
+        Currency currency = currencyRepository.findCurrencyByCode("USD");
 
         Location startLocation1 =
                 locationRepository.findLocationByEntityId(searchParamsRequest.getStartPointsIds().get(0));
@@ -134,6 +131,8 @@ public class FlightMatcherService {
         outputFlightsList = limitManyFlightsByPrice(outputFlightsList,
                 searchParamsRequest.getTotalCostMin(),
                 searchParamsRequest.getTotalCostMax());
+
+        addLinks(outputFlightsList);
 
         if (searchParamsRequest.isLowPriceSwitcher()) {
             return sortManyFlightsByPrice(outputFlightsList);
@@ -424,5 +423,9 @@ public class FlightMatcherService {
         return inputFlightsList.stream()
                 .sorted(Comparator.comparingDouble(ManyFlightsUnit::getTotalCost))
                 .collect(Collectors.toList());
+    }
+
+    private void addLinks(List<ManyFlightsUnit> inputFlightsList) {
+        inputFlightsList.forEach(ManyFlightsUnit::getFlightSkyScannerLink);
     }
 }

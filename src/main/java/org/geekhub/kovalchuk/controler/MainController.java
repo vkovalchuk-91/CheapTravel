@@ -63,7 +63,7 @@ public class MainController {
     @ResponseBody
     public String getUserInfo(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
-           return Strings.EMPTY;
+            return Strings.EMPTY;
         } else {
             return userDetails.getUsername();
         }
@@ -92,8 +92,15 @@ public class MainController {
             User userFromDb = userService.findByUsername(username);
             return userFromDb != null;
         } else {
-            return userService.isUserFoundByUsernameAndPassword(username, password);
+            boolean userFoundByUsernameAndPassword = userService.isUserFoundByUsernameAndPassword(username, password);
+            return userFoundByUsernameAndPassword;
         }
+    }
+
+    @GetMapping("/blocked")
+    @ResponseBody
+    public boolean isUserBlocked(@RequestParam String username) {
+        return userService.isUserBlockedByUsername(username);
     }
 
     private String getRole(Authentication auth) {

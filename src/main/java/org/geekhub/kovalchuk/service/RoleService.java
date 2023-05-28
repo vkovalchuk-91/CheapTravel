@@ -2,6 +2,7 @@ package org.geekhub.kovalchuk.service;
 
 import org.geekhub.kovalchuk.model.entity.Role;
 import org.geekhub.kovalchuk.repository.jpa.RoleRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -31,5 +32,15 @@ public class RoleService {
         Role adminRole = new Role();
         adminRole.setRole("ROLE_ADMIN");
         roleRepository.save(adminRole);
+    }
+
+    public String getRole(Authentication auth) {
+        if (auth == null) {
+            return "NotAuthenticated";
+        } else if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "ADMIN";
+        } else {
+            return "USER";
+        }
     }
 }

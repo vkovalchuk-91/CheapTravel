@@ -1,13 +1,13 @@
 package org.geekhub.kovalchuk.model.dto;
 
-public class UserDto {
+public class UserAccessSelectorDto {
     long userId;
     String username;
     String email;
     boolean isAdmin;
     boolean isBlocked;
 
-    public UserDto(long userId, String username, String email, boolean isAdmin, boolean isBlocked) {
+    public UserAccessSelectorDto(long userId, String username, String email, boolean isAdmin, boolean isBlocked) {
         this.userId = userId;
         this.username = username;
         this.email = email;

@@ -1,7 +1,7 @@
 package org.geekhub.kovalchuk.repository.implementation;
 
-import org.geekhub.kovalchuk.config.ApplicationPropertiesConfig;
 import org.geekhub.kovalchuk.repository.ReportsRepository;
+import org.geekhub.kovalchuk.service.MonthPricesService;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,12 +11,12 @@ import java.util.*;
 @Repository
 public class ReportsRepositoryImpl implements ReportsRepository {
     NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    private final ApplicationPropertiesConfig properties;
+    private final MonthPricesService monthPricesService;
 
     public ReportsRepositoryImpl(NamedParameterJdbcTemplate namedParameterJdbcTemplate,
-                                 ApplicationPropertiesConfig properties) {
+                                 MonthPricesService monthPricesService) {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
-        this.properties = properties;
+        this.monthPricesService = monthPricesService;
     }
 
     @Override
@@ -46,19 +46,7 @@ public class ReportsRepositoryImpl implements ReportsRepository {
                 "WHERE have_flights = true " +
                 "  AND r.activity = true " +
                 "GROUP BY l.name";
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-
-        return namedParameterJdbcTemplate.query(sql,
-                parameters,
-                rs -> {
-                    Map<String, Integer> map = new HashMap<>();
-                    while (rs.next()) {
-                        String key = rs.getString("name");
-                        Integer value = rs.getInt("count");
-                        map.put(key, value);
-                    }
-                    return map;
-                });
+        return getAvailableRoutesResult(sql);
     }
 
     @Override
@@ -70,24 +58,11 @@ public class ReportsRepositoryImpl implements ReportsRepository {
                 "WHERE have_flights = true " +
                 "  AND r.activity = true " +
                 "GROUP BY l.name";
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-
-        return namedParameterJdbcTemplate.query(sql,
-                parameters,
-                rs -> {
-                    Map<String, Integer> map = new HashMap<>();
-                    while (rs.next()) {
-                        String key = rs.getString("name");
-                        Integer value = rs.getInt("count");
-                        map.put(key, value);
-                    }
-                    return map;
-                });
+        return getAvailableRoutesResult(sql);
     }
 
     @Override
     public Map<String, Double> getAverageTicketPriceToCity() {
-        int maxMonths = properties.getMaxMonths();
         String sql = "SELECT l.name, avg(f.price) " +
                 "FROM city_in_operation " +
                 "         JOIN route r on city_in_operation.city_id = r.to_city_id " +
@@ -96,26 +71,13 @@ public class ReportsRepositoryImpl implements ReportsRepository {
                 "WHERE have_flights = true " +
                 "  AND r.activity = true " +
                 "  AND f.flight_date >= CURRENT_DATE " +
-                "  AND f.flight_date <= CURRENT_DATE + INTERVAL '" + maxMonths + " months' " +
+                "  AND f.flight_date <= CURRENT_DATE + CAST(:maxMonthsInterval || ' months' AS INTERVAL) " +
                 "GROUP BY l.name";
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-
-        return namedParameterJdbcTemplate.query(sql,
-                parameters,
-                rs -> {
-                    Map<String, Double> map = new HashMap<>();
-                    while (rs.next()) {
-                        String key = rs.getString("name");
-                        Double value = rs.getDouble("avg");
-                        map.put(key, value);
-                    }
-                    return map;
-                });
+        return getAverageTicketPriceResult(sql);
     }
 
     @Override
     public Map<String, Double> getAverageTicketPriceFromCity() {
-        int maxMonths = properties.getMaxMonths();
         String sql = "SELECT l.name, avg(f.price) " +
                 "FROM city_in_operation " +
                 "         JOIN route r on city_in_operation.city_id = r.from_city_id " +
@@ -124,26 +86,13 @@ public class ReportsRepositoryImpl implements ReportsRepository {
                 "WHERE have_flights = true " +
                 "  AND r.activity = true " +
                 "  AND f.flight_date >= CURRENT_DATE " +
-                "  AND f.flight_date <= CURRENT_DATE + INTERVAL '" + maxMonths + " months' " +
+                "  AND f.flight_date <= CURRENT_DATE + CAST(:maxMonthsInterval || ' months' AS INTERVAL) " +
                 "GROUP BY l.name";
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-
-        return namedParameterJdbcTemplate.query(sql,
-                parameters,
-                rs -> {
-                    Map<String, Double> map = new HashMap<>();
-                    while (rs.next()) {
-                        String key = rs.getString("name");
-                        Double value = rs.getDouble("avg");
-                        map.put(key, value);
-                    }
-                    return map;
-                });
+        return getAverageTicketPriceResult(sql);
     }
 
     @Override
     public Map<String, List<Double>> getTicketPriceStatisticByFromCity(long cityId) {
-        int maxMonths = properties.getMaxMonths();
         String sql = "SELECT l.name AS from_city, l2.name AS to_city, min(f.price), avg(f.price), max(f.price) " +
                 "FROM route " +
                 "         JOIN location l on l.entity_id = route.from_city_id " +
@@ -152,10 +101,13 @@ public class ReportsRepositoryImpl implements ReportsRepository {
                 "WHERE have_flights = true " +
                 "  AND route.activity = true " +
                 "  AND f.flight_date >= CURRENT_DATE " +
-                "  AND f.flight_date <= CURRENT_DATE + INTERVAL '" + maxMonths + " months' " +
+                "  AND f.flight_date <= CURRENT_DATE + CAST(:maxMonthsInterval || ' months' AS INTERVAL) " +
                 "  AND route.from_city_id = :cityId " +
                 "GROUP BY l.name, l2.name";
-        MapSqlParameterSource parameters = new MapSqlParameterSource("cityId", cityId);
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+        parameters.addValue("maxMonthsInterval", monthPricesService.getMaxMonthsCashingNumber());
+        parameters.addValue("cityId", cityId);
 
         return namedParameterJdbcTemplate.query(sql,
                 parameters,
@@ -179,7 +131,6 @@ public class ReportsRepositoryImpl implements ReportsRepository {
 
     @Override
     public Map<String, Double> getAverageTicketPriceByRoute() {
-        int maxMonths = properties.getMaxMonths();
         String sql = "SELECT l.name AS from_city, l2.name AS to_city, avg(f.price) " +
                 "FROM route " +
                 "         JOIN location l on l.entity_id = route.from_city_id " +
@@ -188,11 +139,13 @@ public class ReportsRepositoryImpl implements ReportsRepository {
                 "WHERE have_flights = true " +
                 "  AND route.activity = true " +
                 "  AND f.flight_date >= CURRENT_DATE " +
-                "  AND f.flight_date <= CURRENT_DATE + INTERVAL '" + maxMonths + " months' " +
+                "  AND f.flight_date <= CURRENT_DATE + CAST(:maxMonthsInterval || ' months' AS INTERVAL) " +
                 "GROUP BY l.name, l2.name " +
                 "ORDER BY avg(f.price) " +
                 "LIMIT 100";
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
+
+        MapSqlParameterSource parameters = new MapSqlParameterSource("maxMonthsInterval",
+                monthPricesService.getMaxMonthsCashingNumber());
 
         return namedParameterJdbcTemplate.query(sql,
                 parameters,
@@ -203,6 +156,39 @@ public class ReportsRepositoryImpl implements ReportsRepository {
                         String toCity = rs.getString("to_city");
                         Double value = rs.getDouble("avg");
                         map.put(fromCity + " - " + toCity, value);
+                    }
+                    return map;
+                });
+    }
+
+    private Map<String, Integer> getAvailableRoutesResult(String sql) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource();
+
+        return namedParameterJdbcTemplate.query(sql,
+                parameters,
+                rs -> {
+                    Map<String, Integer> map = new HashMap<>();
+                    while (rs.next()) {
+                        String key = rs.getString("name");
+                        Integer value = rs.getInt("count");
+                        map.put(key, value);
+                    }
+                    return map;
+                });
+    }
+
+    private Map<String, Double> getAverageTicketPriceResult(String sql) {
+        MapSqlParameterSource parameters = new MapSqlParameterSource("maxMonthsInterval",
+                monthPricesService.getMaxMonthsCashingNumber());
+
+        return namedParameterJdbcTemplate.query(sql,
+                parameters,
+                rs -> {
+                    Map<String, Double> map = new HashMap<>();
+                    while (rs.next()) {
+                        String key = rs.getString("name");
+                        Double value = rs.getDouble("avg");
+                        map.put(key, value);
                     }
                     return map;
                 });

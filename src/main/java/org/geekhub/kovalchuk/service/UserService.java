@@ -1,7 +1,7 @@
 package org.geekhub.kovalchuk.service;
 
 import org.apache.logging.log4j.util.Strings;
-import org.geekhub.kovalchuk.model.dto.UserDto;
+import org.geekhub.kovalchuk.model.dto.UserAccessSelectorDto;
 import org.geekhub.kovalchuk.model.entity.Role;
 import org.geekhub.kovalchuk.model.entity.User;
 import org.geekhub.kovalchuk.repository.jpa.RoleRepository;
@@ -52,10 +52,10 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public List<UserDto> getUsersForView() {
-        List<UserDto> users = new ArrayList<>();
+    public List<UserAccessSelectorDto> getUsersForView() {
+        List<UserAccessSelectorDto> users = new ArrayList<>();
         Role roleAdmin = roleRepository.findByRole(ROLE_ADMIN);
-        userRepository.findAll().forEach(user -> users.add(new UserDto(user.getId(),
+        userRepository.findAll().forEach(user -> users.add(new UserAccessSelectorDto(user.getId(),
                 user.getUsername(),
                 user.getEmail(),
                 user.getRoles().contains(roleAdmin),

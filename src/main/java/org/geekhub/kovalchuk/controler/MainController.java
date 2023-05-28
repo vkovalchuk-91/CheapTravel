@@ -1,12 +1,10 @@
 package org.geekhub.kovalchuk.controler;
 
 import org.apache.logging.log4j.util.Strings;
-import org.geekhub.kovalchuk.model.ManyFlightsUnit;
+import org.geekhub.kovalchuk.model.dto.TripSearchResultDto;
 import org.geekhub.kovalchuk.model.entity.User;
 import org.geekhub.kovalchuk.model.request.SearchParamsRequest;
-import org.geekhub.kovalchuk.service.CityInOperationService;
-import org.geekhub.kovalchuk.service.FlightMatcherService;
-import org.geekhub.kovalchuk.service.UserService;
+import org.geekhub.kovalchuk.service.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,49 +12,63 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Controller
 public class MainController {
 
     CityInOperationService cityInOperationService;
     FlightMatcherService flightMatcherService;
     UserService userService;
+    RoleService roleService;
+    FavouriteService favouriteService;
 
 
     public MainController(CityInOperationService cityInOperationService,
                           FlightMatcherService flightMatcherService,
-                          UserService userService) {
+                          UserService userService,
+                          RoleService roleService,
+                          FavouriteService favouriteService) {
         this.cityInOperationService = cityInOperationService;
         this.flightMatcherService = flightMatcherService;
         this.userService = userService;
+        this.roleService = roleService;
+        this.favouriteService = favouriteService;
     }
 
     @GetMapping("/")
     public String showIndexPage(Authentication auth, Model model) {
         model.addAttribute("cashedCitiesInOperation", cityInOperationService.getCitiesForView());
-        model.addAttribute("role", getRole(auth));
+        model.addAttribute("role", roleService.getRole(auth));
         return "about";
     }
 
     @GetMapping("/flight")
-    public String showFlightsPage(Authentication auth, Model model) {
+    public String showFlightsPage(Authentication auth,
+                                  Model model,
+                                  @RequestParam(required = false, defaultValue = "0") long favouriteId) {
         model.addAttribute("cashedLocationsInOperation", cityInOperationService.getLocationsForView());
-        model.addAttribute("role", getRole(auth));
+        model.addAttribute("role", roleService.getRole(auth));
+        model.addAttribute("parameters", favouriteService.getSearchParameters(favouriteId));
         return "flight";
     }
 
     @GetMapping("/admin")
     public String showAdminPage(Authentication auth, Model model) {
         model.addAttribute("cashedLocationsInOperation", cityInOperationService.getLocationsForView());
-        model.addAttribute("role", getRole(auth));
+        model.addAttribute("role", roleService.getRole(auth));
         return "admin";
     }
 
     @PostMapping("/search")
     @ResponseBody
-    public List<ManyFlightsUnit> getLocationsList(@ModelAttribute SearchParamsRequest searchParamsRequest) {
-        return flightMatcherService.getFlightsByRequestParams(searchParamsRequest);
+    public TripSearchResultDto getLocationsList(@AuthenticationPrincipal UserDetails userDetails,
+                                                @ModelAttribute SearchParamsRequest searchParamsRequest) {
+        String username;
+        if (userDetails == null) {
+            username = Strings.EMPTY;
+        } else {
+            username = userDetails.getUsername();
+        }
+        return flightMatcherService.getMatchedFlights(username, searchParamsRequest);
     }
 
     @GetMapping("/user-info")
@@ -92,8 +104,7 @@ public class MainController {
             User userFromDb = userService.findByUsername(username);
             return userFromDb != null;
         } else {
-            boolean userFoundByUsernameAndPassword = userService.isUserFoundByUsernameAndPassword(username, password);
-            return userFoundByUsernameAndPassword;
+            return userService.isUserFoundByUsernameAndPassword(username, password);
         }
     }
 
@@ -101,15 +112,5 @@ public class MainController {
     @ResponseBody
     public boolean isUserBlocked(@RequestParam String username) {
         return userService.isUserBlockedByUsername(username);
-    }
-
-    private String getRole(Authentication auth) {
-        if (auth == null) {
-            return "NotAuthenticated";
-        } else if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return "ADMIN";
-        } else {
-            return "USER";
-        }
     }
 }

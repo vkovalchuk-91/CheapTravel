@@ -2,7 +2,7 @@ package org.geekhub.kovalchuk.controler;
 
 import org.geekhub.kovalchuk.model.dto.AbbreviationsSelectorDto;
 import org.geekhub.kovalchuk.model.dto.CitiesSelectorDto;
-import org.geekhub.kovalchuk.model.dto.UserDto;
+import org.geekhub.kovalchuk.model.dto.UserAccessSelectorDto;
 import org.geekhub.kovalchuk.service.*;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,7 +51,7 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public List<UserDto> getUsers() {
+    public List<UserAccessSelectorDto> getUsers() {
         return userService.getUsersForView();
     }
 

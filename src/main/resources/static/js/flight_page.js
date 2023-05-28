@@ -3,14 +3,25 @@
     'use strict';
     var init = function () {
 
+        let $days_in_point = $('#days_in_point');
+        let days_in_point_min = Number($days_in_point.attr('data-min'));
+        let days_in_point_max = Number($days_in_point.attr('data-max'));
+
+        let $total_days = $('#total_days');
+        let total_days_min = Number($total_days.attr('data-min'));
+        let total_days_max = Number($total_days.attr('data-max'));
+
+        let $total_cost = $('#total_cost');
+        let total_cost_min = Number($total_cost.attr('data-min'));
+        let total_cost_max = Number($total_cost.attr('data-max'));
+
         var slider = new rSlider({
             target: '#days_in_point',
             values: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             range: true,
-            set: [3, 5],
+            set: [days_in_point_min, days_in_point_max],
             tooltip: false,
             onChange: function (vals) {
-                console.log(vals);
             }
         });
 
@@ -19,11 +30,10 @@
             values: {min: 1, max: 60},
             step: 1,
             range: true,
-            set: [1, 14],
+            set: [total_days_min, total_days_max],
             scale: false,
             labels: false,
             onChange: function (vals) {
-                console.log(vals);
             }
         });
 
@@ -32,11 +42,10 @@
             values: {min: 1, max: 999},
             step: 1,
             range: true,
-            set: [1, 150],
+            set: [total_cost_min, total_cost_max],
             scale: false,
             labels: false,
             onChange: function (vals) {
-                console.log(vals);
             }
         });
     };
@@ -56,10 +65,10 @@ $('#trip_dates').daterangepicker({
     ranges: {
         'Найближчі пів року': [moment(), moment().add(5, 'month').endOf('month')],
         'Найближчі 3 місяці': [moment(), moment().add(2, 'month').endOf('month')],
+        'Найближчі 2 місяці': [moment(), moment().add(1, 'month').endOf('month')],
         'Наступний місяць': [moment().add(1, 'month').startOf('month'), moment().add(1, 'month').endOf('month')],
         'Цей місяць': [moment(), moment().endOf('month')],
-        'Наступні 7 днів': [moment(), moment().add(6, 'days')],
-        'Сьогодні': [moment(), moment()]
+        'Наступні 7 днів': [moment(), moment().add(6, 'days')]
     },
     "locale": {
         "format": "YYYY-MM-DD",
@@ -96,14 +105,25 @@ $('#trip_dates').daterangepicker({
         "firstDay": 1
     },
     "alwaysShowCalendars": true,
+    // default values
     "startDate": moment(),
-    "endDate": moment().add(5, 'month').endOf('month'),
+    "endDate": moment().add(1, 'month').endOf('month'),
     "minDate": moment(),
     "maxDate": moment().add(5, 'month').endOf('month'),
     "opens": "left"
 }, function (start, end) {
     console.log(start.format('YYYY/MM/DD') + ' - ' + end.format('YYYY/MM/DD'));
 });
+
+// change the selected date range of that picker
+$(function () {
+    let $trip_dates = $('#trip_dates');
+    let trip_date_start = $trip_dates.attr('data-start');
+    let trip_date_end = $trip_dates.attr('data-end');
+
+    $trip_dates.data('daterangepicker').setStartDate(trip_date_start);
+    $trip_dates.data('daterangepicker').setEndDate(trip_date_end);
+})
 
 // remove/add flight points
 $(function () {
@@ -135,6 +155,20 @@ $(function () {
 // get search results
 $(function () {
     const $searchButton = $('#searchButton');
+
+    let show_results = $searchButton.attr('data-show-results');
+    if (show_results === "1") {
+        showResultsFromFavourites();
+    }
+
+    $($searchButton).on('click', function () {
+        showResultsFromSearchButton();
+    });
+});
+
+// show searching results after request from favourites
+function showResultsFromFavourites() {
+    const $searchButton = $('#searchButton');
     const $start_point_1 = $('#start_point_1');
     const $end_point_1 = $('#end_point_1');
     const $start_point_2 = $('#start_point_2');
@@ -145,47 +179,135 @@ $(function () {
     const $end_point_4 = $('#end_point_4');
     const low_price_switcher = document.getElementById('low_price_switcher');
 
-    $($searchButton).on('click', function () {
-        let flight_number = $searchButton.attr('data-flights');
+    let flight_number = $searchButton.attr('data-flights');
 
-        if ($start_point_1.val() === null || $end_point_1.val() === null ||
-            $start_point_2.val() === null || $end_point_2.val() === null) {
-            displayValidationMessage();
-        } else if (flight_number >= 3 && ($start_point_3.val() === null || $end_point_3.val() === null)) {
-            displayValidationMessage();
-        } else if (flight_number >= 4 && ($start_point_4.val() === null || $end_point_4.val() === null)) {
-            displayValidationMessage();
-        } else {
-            displaySearchingProgress();
+    let $trip_dates = $('#trip_dates');
+    let trip_date_start = $trip_dates.attr('data-start');
+    let trip_date_end = $trip_dates.attr('data-end');
 
-            $.ajax({
-                url: '/search',
-                method: 'POST',
-                data: {
-                    flightNumber: flight_number,
-                    lowPriceSwitcher: low_price_switcher.checked,
-                    startPoint1: $start_point_1.val(),
-                    endPoint1: $end_point_1.val(),
-                    startPoint2: $start_point_2.val(),
-                    endPoint2: $end_point_2.val(),
-                    startPoint3: $start_point_3.val(),
-                    endPoint3: $end_point_3.val(),
-                    startPoint4: $start_point_4.val(),
-                    endPoint4: $end_point_4.val(),
+    let $days_in_point = $('#days_in_point');
+    let days_in_point_min = $days_in_point.attr('data-min');
+    let days_in_point_max = $days_in_point.attr('data-max');
 
-                    tripDates: $('#trip_dates').val(),
-                    daysInPoint: $('#days_in_point').val(),
-                    totalDays: $('#total_days').val(),
-                    totalCost: $('#total_cost').val()
-                },
-                success: function (data) {
-                    displayResults(data);
-                    setPagination();
-                }
-            });
+    let $total_days = $('#total_days');
+    let total_days_min = $total_days.attr('data-min');
+    let total_days_max = $total_days.attr('data-max');
+
+    let $total_cost = $('#total_cost');
+    let total_cost_min = $total_cost.attr('data-min');
+    let total_cost_max = $total_cost.attr('data-max');
+
+    $.ajax({
+        url: '/search',
+        method: 'POST',
+        data: {
+            flightNumber: flight_number,
+            lowPriceSwitcher: low_price_switcher.checked,
+            startPoint1: $start_point_1.val(),
+            endPoint1: $end_point_1.val(),
+            startPoint2: $start_point_2.val(),
+            endPoint2: $end_point_2.val(),
+            startPoint3: $start_point_3.val(),
+            endPoint3: $end_point_3.val(),
+            startPoint4: $start_point_4.val(),
+            endPoint4: $end_point_4.val(),
+
+            tripDates: trip_date_start + " - " + trip_date_end,
+            daysInPoint: days_in_point_min + "," + days_in_point_max,
+            totalDays: total_days_min + "," + total_days_max,
+            totalCost: total_cost_min + "," + total_cost_max
+        },
+        success: function (data) {
+            setSearchingInFavouritesParams(
+                flight_number,
+                low_price_switcher.checked,
+                $start_point_1.val(),
+                $end_point_1.val(),
+                $start_point_2.val(),
+                $end_point_2.val(),
+                $start_point_3.val(),
+                $end_point_3.val(),
+                $start_point_4.val(),
+                $end_point_4.val(),
+                trip_date_start + " - " + trip_date_end,
+                days_in_point_min + "," + days_in_point_max,
+                total_days_min + "," + total_days_max,
+                total_cost_min + "," + total_cost_max);
+            displayFavourites(data);
+            displayResults(data);
+            setPagination();
         }
     });
-});
+}
+
+// show searching results after Search Button press
+function showResultsFromSearchButton() {
+    const $searchButton = $('#searchButton');
+    const $start_point_1 = $('#start_point_1');
+    const $end_point_1 = $('#end_point_1');
+    const $start_point_2 = $('#start_point_2');
+    const $end_point_2 = $('#end_point_2');
+    const $start_point_3 = $('#start_point_3');
+    const $end_point_3 = $('#end_point_3');
+    const $start_point_4 = $('#start_point_4');
+    const $end_point_4 = $('#end_point_4');
+    const low_price_switcher = document.getElementById('low_price_switcher');
+
+    let flight_number = $searchButton.attr('data-flights');
+
+    if ($start_point_1.val() === null || $end_point_1.val() === null ||
+        $start_point_2.val() === null || $end_point_2.val() === null) {
+        displayValidationMessage();
+    } else if (flight_number >= 3 && ($start_point_3.val() === null || $end_point_3.val() === null)) {
+        displayValidationMessage();
+    } else if (flight_number >= 4 && ($start_point_4.val() === null || $end_point_4.val() === null)) {
+        displayValidationMessage();
+    } else {
+        displaySearchingProgress();
+
+        $.ajax({
+            url: '/search',
+            method: 'POST',
+            data: {
+                flightNumber: flight_number,
+                lowPriceSwitcher: low_price_switcher.checked,
+                startPoint1: $start_point_1.val(),
+                endPoint1: $end_point_1.val(),
+                startPoint2: $start_point_2.val(),
+                endPoint2: $end_point_2.val(),
+                startPoint3: $start_point_3.val(),
+                endPoint3: $end_point_3.val(),
+                startPoint4: $start_point_4.val(),
+                endPoint4: $end_point_4.val(),
+
+                tripDates: $('#trip_dates').val(),
+                daysInPoint: $('#days_in_point').val(),
+                totalDays: $('#total_days').val(),
+                totalCost: $('#total_cost').val()
+            },
+            success: function (data) {
+                setSearchingInFavouritesParams(
+                    flight_number,
+                    low_price_switcher.checked,
+                    $start_point_1.val(),
+                    $end_point_1.val(),
+                    $start_point_2.val(),
+                    $end_point_2.val(),
+                    $start_point_3.val(),
+                    $end_point_3.val(),
+                    $start_point_4.val(),
+                    $end_point_4.val(),
+                    $('#trip_dates').val(),
+                    $('#days_in_point').val(),
+                    $('#total_days').val(),
+                    $('#total_cost').val());
+                displayFavourites(data);
+                displayResults(data);
+                setPagination();
+            }
+        });
+    }
+}
 
 // display Searching Progress Bar
 function displaySearchingProgress() {
@@ -205,11 +327,123 @@ function displayValidationMessage() {
     $('#main_content').html(html);
 }
 
+// set searching parameters for adding to favourites
+function setSearchingInFavouritesParams(flight_number,
+                                        low_price_switcher,
+                                        start_point_1,
+                                        end_point_1,
+                                        start_point_2,
+                                        end_point_2,
+                                        start_point_3,
+                                        end_point_3,
+                                        start_point_4,
+                                        end_point_4,
+                                        trip_dates,
+                                        days_in_point,
+                                        total_days,
+                                        total_cost) {
+    const $favourite = $('#favourite');
+
+    $favourite.attr('data-flight_number', flight_number);
+    $favourite.attr('data-low_price_switcher', low_price_switcher);
+    $favourite.attr('data-start_point_1', start_point_1);
+    $favourite.attr('data-end_point_1', end_point_1);
+    $favourite.attr('data-start_point_2', start_point_2);
+    $favourite.attr('data-end_point_2', end_point_2);
+    $favourite.attr('data-start_point_3', start_point_3);
+    $favourite.attr('data-end_point_3', end_point_3);
+    $favourite.attr('data-start_point_4', start_point_4);
+    $favourite.attr('data-end_point_4', end_point_4);
+    $favourite.attr('data-trip_dates', trip_dates);
+    $favourite.attr('data-days_in_point', days_in_point);
+    $favourite.attr('data-total_days', total_days);
+    $favourite.attr('data-total_cost', total_cost);
+}
+
+// display favourites sign
+function displayFavourites(data) {
+    let id = data.favouriteId;
+    if (id === 0) {
+        showNotInFavouritesSign();
+    } else {
+        showInFavouritesSign(id);
+    }
+}
+
+// show Not In Favourites Sign
+function showNotInFavouritesSign() {
+    $('#in_favourite').attr('style', 'display: none;');
+    $('#not_in_favourite').removeAttr('style');
+}
+
+// show In Favourites Sign
+function showInFavouritesSign(favouriteId) {
+    const $in_favourite = $('#in_favourite');
+    $in_favourite.removeAttr('style');
+    $in_favourite.attr('data-favourite-id', favouriteId);
+    $('#not_in_favourite').attr('style', 'display: none;');
+}
+
+// add/delete favourite
+$(function () {
+    $('#not_in_favourite').on('click', function () {
+        addToFavourite();
+    })
+
+    $('#in_favourite').on('click', function () {
+        deleteFromFavourite();
+    })
+})
+
+// add searching query from DB
+function addToFavourite() {
+    const $favourite = $('#favourite');
+    $.ajax({
+        url: '/favourites',
+        method: 'POST',
+        data: {
+            flightNumber: $favourite.attr('data-flight_number'),
+            lowPriceSwitcher: $favourite.attr('data-low_price_switcher'),
+            startPoint1: $favourite.attr('data-start_point_1'),
+            endPoint1: $favourite.attr('data-end_point_1'),
+            startPoint2: $favourite.attr('data-start_point_2'),
+            endPoint2: $favourite.attr('data-end_point_2'),
+            startPoint3: $favourite.attr('data-start_point_3'),
+            endPoint3: $favourite.attr('data-end_point_3'),
+            startPoint4: $favourite.attr('data-start_point_4'),
+            endPoint4: $favourite.attr('data-end_point_4'),
+
+            tripDates: $favourite.attr('data-trip_dates'),
+            daysInPoint: $favourite.attr('data-days_in_point'),
+            totalDays: $favourite.attr('data-total_days'),
+            totalCost: $favourite.attr('data-total_cost')
+        },
+        success: function (data) {
+            showInFavouritesSign(data);
+        }
+    });
+}
+
+// delete searching query from DB
+function deleteFromFavourite() {
+    $.ajax({
+        url: '/favourites',
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        data: $('#in_favourite').attr('data-favourite-id'),
+        success: function (data) {
+            showNotInFavouritesSign();
+        }
+    });
+}
+
 // display search results
 function displayResults(data) {
     let html = '';
 
-    if (data.length === 0) {
+    if (data.trips.length === 0) {
         html = `
             <h3>
             Немає перельотів, що задовольняють умови вашого пошуку!
@@ -220,7 +454,7 @@ function displayResults(data) {
         html += `
             <p style="color: red">* Результати пошуку сформовані на основі кешованих індикативних цін, що надаються <a href="https://developers.skyscanner.net/docs/intro">SkyScanner API</a>, актуальні на даний момент ціни можна отримати перейшовши за посиланням під кожним варіантом подорожі!
             </p>`;
-        data.forEach(function (trip) {
+        data.trips.forEach(function (trip) {
             let flights = trip.flights;
             let counter = 0;
 
@@ -244,9 +478,9 @@ function displayResults(data) {
                 html += `
                 <tr>
                 <th scope="row">${counter}</th>
-                <td>${flight.route.fromCity.name}</td>
-                <td>${flight.route.toCity.name}</td>
-                <td>${flight.flightDate}</td>
+                <td>${flight.fromCity}</td>
+                <td>${flight.toCity}</td>
+                <td>${flight.date}</td>
                 </tr>
                         `;
             });

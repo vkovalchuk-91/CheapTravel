@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Flight {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @OneToOne
     @JoinColumn(name = "route_id")

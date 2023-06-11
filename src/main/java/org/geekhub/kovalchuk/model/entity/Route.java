@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 @Entity
 public class Route {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     @OneToOne
     @JoinColumn(name = "from_city_id")

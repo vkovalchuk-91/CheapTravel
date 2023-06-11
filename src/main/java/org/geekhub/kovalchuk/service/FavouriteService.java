@@ -35,6 +35,7 @@ public class FavouriteService {
         Favourite favourite = new Favourite();
 
         favourite.setUser(userRepository.findByUsername(username));
+        favourite.setFlightNumber(searchParams.getFlightNumber());
         favourite.setStartPoint1(locationRepository.findLocationByEntityId(searchParams.getStartPointsIds().get(0)));
         favourite.setEndPoint1(locationRepository.findLocationByEntityId(searchParams.getEndPointsIds().get(0)));
         favourite.setStartPoint2(locationRepository.findLocationByEntityId(searchParams.getStartPointsIds().get(1)));
@@ -48,7 +49,6 @@ public class FavouriteService {
             favourite.setEndPoint4(locationRepository.findLocationByEntityId(searchParams.getEndPointsIds().get(3)));
         }
 
-        favourite.setFlightNumber(searchParams.getFlightNumber());
         favourite.setStartTripDate(searchParams.getStartTripDate());
         favourite.setEndTripDate(searchParams.getEndTripDate());
         favourite.setDaysInPointMin(searchParams.getDaysInPointMin());

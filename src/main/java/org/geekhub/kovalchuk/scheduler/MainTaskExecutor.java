@@ -21,6 +21,7 @@ public class MainTaskExecutor implements Job {
     private final TaskQueueRepository taskQueueRepository;
     private final MonthPricesService monthPricesService;
     private final RoleService roleService;
+    private final UserService userService;
     private final ApplicationPropertiesConfig properties;
     private static boolean isFirstRunning = true;
 
@@ -31,6 +32,7 @@ public class MainTaskExecutor implements Job {
                             TaskQueueRepository taskQueueRepository,
                             MonthPricesService monthPricesService,
                             RoleService roleService,
+                            UserService userService,
                             ApplicationPropertiesConfig properties) {
         this.locationsService = locationsService;
         this.cityInOperationService = cityInOperationService;
@@ -39,6 +41,7 @@ public class MainTaskExecutor implements Job {
         this.taskQueueRepository = taskQueueRepository;
         this.monthPricesService = monthPricesService;
         this.roleService = roleService;
+        this.userService = userService;
         this.properties = properties;
     }
 
@@ -46,6 +49,8 @@ public class MainTaskExecutor implements Job {
     public void execute(JobExecutionContext context) {
         if (isFirstRunning) {
             initRoles();
+            addDefaultUserAccount();
+            addDefaultAdminAccount();
             initLocations();
             updateAbbreviations();
             initCitiesInOperation();
@@ -60,6 +65,18 @@ public class MainTaskExecutor implements Job {
     private void initRoles() {
         if (roleService.isRolesTableEmpty()) {
             roleService.addRolesToDb();
+        }
+    }
+
+    private void addDefaultUserAccount() {
+        if (userService.findByUsername("user") == null) {
+            userService.addDefaultUserAccount();
+        }
+    }
+
+    private void addDefaultAdminAccount() {
+        if (userService.findByUsername("admin") == null) {
+            userService.addDefaultAdminAccount();
         }
     }
 

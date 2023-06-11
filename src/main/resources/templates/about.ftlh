@@ -20,7 +20,7 @@
         <div class="sidebar-heading border-bottom bg-light">Cheap Euro Trip</div>
         <div class="list-group list-group-flush">
             <a class="list-group-item list-group-item-action list-group-item-light p-3" id="about_program">
-                Інформація про програму
+                Інформація про додаток
             </a>
             <a class="list-group-item list-group-item-action list-group-item-light p-3" id="about_author">
                 Інформація про автора
@@ -69,36 +69,12 @@
             </div>
         </nav>
         <!-- Page content-->
-        <div class="container-fluid" id="information_block">
-            <h1 class="d-flex justify-content-center mt-4">Cheap Euro Trip - програма пошуку дешевих авіаквитків</h1>
-            <div id="main_content">
-                <p>
-                    Cheap Euro Trip - Web-додаток для пошуку авіаквитків в основі якого лежить
-                    <a href="https://developers.skyscanner.net/docs/intro">SkyScanner API</a>!
-                    Програма здійснює обробку та накопичення даних щодо напрямків, дат та цін на авіаперельоти, кешує
-                    отримані дані в базі даних і потім з заданою частотою оновлює їх, далі за допомогою гнучких
-                    фільтрів дає можливість знайти найдешевші варіанти подорожі, також користувачі з роллю
-                    адмыністратора мають можливість гнучких налаштувань! Окрім backend частини проекту написаної
-                    безпосередньо на Java, в проекті використано такі технології як Spring Boot, Spring Web,
-                    Spring Security, Spring Quartz, Spring Data JPA, JDBC, PostgreSQL, Apache POI (експорт звітів в
-                    excel), Freemarker Templates, HTML, CSS, Bootstrap Templates, JavaScript, jQuery, AJAX queries,
-                    JSON(Jackson).
-                </p>
-
-                <#if role=="NotAuthenticated">
-                    <p style="color: red">Для використання програми потрібно спочатку <a href="/registration">зареєструватися</a>
-                        або <a href="/login">увійти</a> на сайт!
-                    </p>
-                <#else>
-                    <p><a href="/flight">Натисніть</a> щоб розпочати використання програми!
-                    </p>
-                </#if>
-            </div>
+        <div class="container-fluid" id="information_block" data-auth="${role}">
         </div>
 
         <div class="container-fluid" id="reports_block" style="display: none">
             <h1 class="mt-4">
-                Статистика кількості та вартості рейсів з/до міст, які доступні в програмі
+                Статистика кількості та вартості рейсів з/до міст, які доступні в додатку
             </h1>
             <div id="main_content" class="mb-4">
                 <p>

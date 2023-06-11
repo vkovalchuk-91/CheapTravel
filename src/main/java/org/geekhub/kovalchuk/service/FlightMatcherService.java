@@ -10,26 +10,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class FlightMatcherService {
     private final LocationRepository locationRepository;
-    private final FlightRepository flightRepository;
-    private final CityInOperationRepository cityRepository;
-    private final RouteRepository routeRepository;
-    private final CurrencyRepository currencyRepository;
     private final FlightMatcherRepository flightMatcherRepository;
     private final FavouriteService favouriteService;
     private static final String TYPE_CITY = "PLACE_TYPE_CITY";
 
-    public FlightMatcherService(FlightRepository flightRepository,
-                                CityInOperationRepository cityRepository,
-                                RouteRepository routeRepository,
-                                LocationRepository locationRepository,
-                                CurrencyRepository currencyRepository,
+    public FlightMatcherService(LocationRepository locationRepository,
                                 FlightMatcherRepository flightMatcherRepository,
                                 FavouriteService favouriteService) {
-        this.flightRepository = flightRepository;
-        this.cityRepository = cityRepository;
-        this.routeRepository = routeRepository;
         this.locationRepository = locationRepository;
-        this.currencyRepository = currencyRepository;
         this.flightMatcherRepository = flightMatcherRepository;
         this.favouriteService = favouriteService;
     }

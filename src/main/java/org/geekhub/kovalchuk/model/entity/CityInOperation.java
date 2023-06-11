@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 @Entity
 public class CityInOperation {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @OneToOne
     @JoinColumn(name = "city_id")

@@ -14,17 +14,10 @@ public class RoleService {
         this.roleRepository = roleRepository;
     }
 
-    public Role findByRole(String role) {
-        return roleRepository.findByRole(role);
-    }
-
-    public void save(Role role) {
-        roleRepository.save(role);
-    }
-
     public boolean isRolesTableEmpty() {
         return roleRepository.count() == 0;
     }
+
     public void addRolesToDb() {
         Role userRole = new Role();
         userRole.setRole("ROLE_USER");

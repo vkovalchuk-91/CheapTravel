@@ -51,19 +51,7 @@ public class CityInOperationService {
                         .map(Integer::parseInt)
                         .collect(Collectors.toList());
 
-        for (Integer cityEntityId : topCitiesInOperationEntityId) {
-            Location cityLocation = locationRepository.findLocationByEntityId(cityEntityId);
-            CityInOperation cityInOperation = cityInOperationRepository.findCityInOperationByLocation(cityLocation);
-            if (cityInOperation == null) {
-                cityInOperation = new CityInOperation();
-                cityInOperation.setLocation(cityLocation);
-            }
-            cityInOperation.setActivity(true);
-            cityInOperation.setAddDate(LocalDateTime.now());
-            cityInOperation.setActivatingDate(LocalDateTime.now());
-
-            cityInOperationRepository.save(cityInOperation);
-        }
+        setCitiesInOperation(topCitiesInOperationEntityId);
     }
 
     public void addOrUpdateTop12AirportCitiesToDb() {
@@ -72,51 +60,7 @@ public class CityInOperationService {
                         .map(Integer::parseInt)
                         .collect(Collectors.toList());
 
-        for (Integer cityEntityId : topCitiesInOperationEntityId) {
-            Location cityLocation = locationRepository.findLocationByEntityId(cityEntityId);
-            CityInOperation cityInOperation = cityInOperationRepository.findCityInOperationByLocation(cityLocation);
-            if (cityInOperation == null) {
-                cityInOperation = new CityInOperation();
-                cityInOperation.setLocation(cityLocation);
-            }
-            cityInOperation.setActivity(true);
-            cityInOperation.setAddDate(LocalDateTime.now());
-            cityInOperation.setActivatingDate(LocalDateTime.now());
-
-            cityInOperationRepository.save(cityInOperation);
-        }
-    }
-
-    public void activateCity(long cityEntityId) {
-        Location cityLocation = locationRepository.findLocationByEntityId(cityEntityId);
-        CityInOperation cityInOperation = cityInOperationRepository.findCityInOperationByLocation(cityLocation);
-        if (cityInOperation == null) {
-            cityInOperation = new CityInOperation();
-            cityInOperation.setLocation(cityLocation);
-        }
-        cityInOperation.setActivity(true);
-        cityInOperation.setAddDate(LocalDateTime.now());
-        cityInOperation.setActivatingDate(LocalDateTime.now());
-
-        cityInOperationRepository.save(cityInOperation);
-    }
-
-    public void deactivateCity(long cityEntityId) {
-        Location cityLocation = locationRepository.findLocationByEntityId(cityEntityId);
-        CityInOperation cityInOperation = cityInOperationRepository.findCityInOperationByLocation(cityLocation);
-        if (cityInOperation != null) {
-            cityInOperation.setActivity(false);
-            cityInOperation.setActivatingDate(null);
-            cityInOperationRepository.save(cityInOperation);
-        }
-    }
-
-    public void deleteCityFromDb(long cityEntityId) {
-        Location cityLocation = locationRepository.findLocationByEntityId(cityEntityId);
-        CityInOperation cityInOperation = cityInOperationRepository.findCityInOperationByLocation(cityLocation);
-        if (cityInOperation != null) {
-            cityInOperationRepository.delete(cityInOperation);
-        }
+        setCitiesInOperation(topCitiesInOperationEntityId);
     }
 
     public List<LocationInOperationDto> getLocationsForView() {
@@ -133,7 +77,7 @@ public class CityInOperationService {
 
         List<Location> countriesInOperation = citiesInOperation.stream()
                 .map(Location::getParentId)
-                .map(id -> locationRepository.findLocationByEntityId(id))
+                .map(locationRepository::findLocationByEntityId)
                 .distinct()
                 .collect(Collectors.toList());
 
@@ -254,5 +198,21 @@ public class CityInOperationService {
         taskQueueRepository.setNeedToStartUpdateRoutes(true);
         updateCashedLocationsInOperation();
         updateCashedCitiesInOperation();
+    }
+
+    private void setCitiesInOperation(List<Integer> topCitiesInOperationEntityId) {
+        for (Integer cityEntityId : topCitiesInOperationEntityId) {
+            Location cityLocation = locationRepository.findLocationByEntityId(cityEntityId);
+            CityInOperation cityInOperation = cityInOperationRepository.findCityInOperationByLocation(cityLocation);
+            if (cityInOperation == null) {
+                cityInOperation = new CityInOperation();
+                cityInOperation.setLocation(cityLocation);
+            }
+            cityInOperation.setActivity(true);
+            cityInOperation.setAddDate(LocalDateTime.now());
+            cityInOperation.setActivatingDate(LocalDateTime.now());
+
+            cityInOperationRepository.save(cityInOperation);
+        }
     }
 }

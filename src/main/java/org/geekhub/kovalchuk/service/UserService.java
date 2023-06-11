@@ -52,6 +52,30 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void addDefaultUserAccount() {
+        User user = new User();
+        user.setActive(true);
+        user.setUsername("user");
+        user.setEmail("user@test.account.com");
+        user.setPassword("1");
+        userRepository.save(user);
+        Role roleUser = roleRepository.findByRole(ROLE_USER);
+        user.setRoles(Set.of(roleUser));
+        userRepository.save(user);
+    }
+
+    public void addDefaultAdminAccount() {
+        User admin = new User();
+        admin.setActive(true);
+        admin.setUsername("admin");
+        admin.setEmail("admin@test.account.com");
+        admin.setPassword("1");
+        userRepository.save(admin);
+        Role roleAdmin = roleRepository.findByRole(ROLE_ADMIN);
+        admin.setRoles(Set.of(roleAdmin));
+        userRepository.save(admin);
+    }
+
     public List<UserAccessSelectorDto> getUsersForView() {
         List<UserAccessSelectorDto> users = new ArrayList<>();
         Role roleAdmin = roleRepository.findByRole(ROLE_ADMIN);

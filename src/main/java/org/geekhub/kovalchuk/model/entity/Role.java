@@ -7,11 +7,11 @@ import java.util.Set;
 @Table(name = "role")
 public class Role {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String role;
 
-    @ManyToMany(mappedBy = "roles", cascade = {CascadeType.ALL})
+    @ManyToMany(mappedBy = "roles", cascade = {CascadeType.ALL},fetch = FetchType.EAGER)
     private Set<User> users;
 
     public Role() {
